@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">Sun Alarm</string>
+    
+    <string name="dawn">Dawn</string>
+    <string name="dawnAlarm">Dawn Alarm</string>
+    <string name="delay_dawn_alarm">Delay dawn alarm (mins):</string>
+    
+    <string name="dusk">Dusk</string>
+    <string name="duskAlarm">Dusk Alarm</string>
+    <string name="delay_dusk_alarm">Delay dusk alarm (mins):</string>
+    
+    <string name="time">Time</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_show_status">Today</string>
+
+</resources>
