@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import android.app.Activity;
-import android.content.ComponentCallbacks;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -33,6 +32,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	
 	private ToggleButton duskAlarmSet, dawnAlarmSet;
 	
+	@SuppressWarnings("unused")
 	private EditText delayDawnAlarm, delayDuskAlarm;
 	
     @Override
