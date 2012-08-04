@@ -13,5 +13,10 @@
     <string name="time">Time</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_show_status">Today</string>
+    
+    <string name="int_0">0</string>
+    
+    <string name="ring_alarm">Ring Alarm</string>
+    <string name="turn_off_alarm">Turn off alarm</string>
 
 </resources>
