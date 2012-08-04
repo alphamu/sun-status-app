@@ -18,41 +18,54 @@ import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.util.Settings.Key;
 
 public class AlarmActivity extends Activity {
-	private static final int _ID = 20120804;
-	Ringtone ringtone;
-	
-	
+	private static final int	_ID				= 20120804;
+	private static Ringtone		ringtone;
+
+	private String				alarmType;
+
+	Handler						alarmAutoStop	= new Handler();
+	Runnable					stopAlarmTask;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setNotification();
 		setContentView(R.layout.activity_alarm);
-		
-		Button turnOff = (Button) findViewById(R.id.turnAOffAlarm);
-		turnOff.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				stopRingtone();
-			}
-		});
-	}
-	
-	
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
 		Bundle bundle = getIntent().getExtras();
-		String type = bundle.getString("alarm_type");
-		if (type.equals(Key.DAWN_ALARM.toString())) {
 
-		} else if (type.equals(Key.DAWN_ALARM.toString())) {
+		if (bundle == null) {
+			finish();
+			return;
+		}
 
+		if (bundle.getBoolean("from_alert")) {
+			stopRingtone();
+		} else {
+			setNotification();
+
+			if (ringtone == null) {
+				playRingtone();
+
+				String type = bundle.getString("alarm_type");
+				if (type.equals(Key.DAWN_ALARM.toString())) {
+					setTitle(getString(R.string.ring_alarm, getString(R.string.dawn)));
+				} else if (type.equals(Key.DUSK_ALARM.toString())) {
+					setTitle(getString(R.string.ring_alarm, getString(R.string.dusk)));
+
+				}
+
+				alarmType = type;
+			}
+
+			Button turnOff = (Button) findViewById(R.id.turnAOffAlarm);
+			turnOff.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					stopRingtone();
+				}
+			});
 		}
 	}
-
-
 
 	private void playRingtone() {
 		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -67,43 +80,53 @@ public class AlarmActivity extends Activity {
 		}
 		ringtone = RingtoneManager.getRingtone(getApplicationContext(), alert);
 		ringtone.play();
-		
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
-			
+
+		alarmAutoStop.postDelayed(stopAlarmTask = new Runnable() {
+
 			@Override
 			public void run() {
 				stopRingtone();
-				
+
 			}
-		}, (1000 * 60) * 5); //stop alarm after 5 minutes
+		}, (1000 * 60) * 5); // stop alarm after 5 minutes
 	}
-	
+
 	private void stopRingtone() {
-		ringtone.stop();
+		if (alarmAutoStop != null) {
+			alarmAutoStop.removeCallbacks(stopAlarmTask);
+		}
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager.cancel(_ID);
+		if(ringtone != null) {
+			ringtone.stop();
+			ringtone = null;
+		}
+		finish();
 	}
-	
+
 	private void setNotification() {
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
-		
+
 		int icon = android.R.drawable.stat_notify_more;
-		CharSequence tickerText = "Hello";
+		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType == Key.DAWN_ALARM.toString())? getString(R.string.dawn) : getString(R.string.dusk));
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
-		
+
 		Context context = getApplicationContext();
-		CharSequence contentTitle = "My notification";
-		CharSequence contentText = "Hello World!";
+		CharSequence contentTitle = tickerText; //"My notification";
+		CharSequence contentText = getString(R.string.alert_description);
 		Intent notificationIntent = new Intent(this, AlarmActivity.class);
+		notificationIntent.putExtra("alarm_type", alarmType);
+		notificationIntent.putExtra("from_alert", true);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
 		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
-		
+		notification.flags = Notification.FLAG_AUTO_CANCEL;
+
 		mNotificationManager.notify(_ID, notification);
-		
-		playRingtone();
+
 	}
 
 }

@@ -63,10 +63,10 @@
                 android:text="@string/dawnAlarm"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <ToggleButton
+            <Switch
                 android:id="@+id/dawnAlarmSet"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:text="" />
         </TableRow>
@@ -84,10 +84,10 @@
                 android:text="@string/duskAlarm"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
-            <ToggleButton
+            <Switch
                 android:id="@+id/duskAlarmSet"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:text="" />
         </TableRow>

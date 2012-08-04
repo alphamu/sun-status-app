@@ -14,12 +14,15 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
+import com.alimuzaffar.sunalarm.BuildConfig;
 import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.Settings;
@@ -37,12 +40,13 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	
 	private TextView duskTime, dawnTime;
 	
-	private ToggleButton duskAlarmSet, dawnAlarmSet;
+	private CompoundButton duskAlarmSet, dawnAlarmSet;
 	
 	private EditText delayDawnAlarm, delayDuskAlarm;
 	
 	private Calendar sunriseCal;
 	private Calendar sunsetCal;
+	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,8 +56,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
         dawnTime = (TextView)findViewById(R.id.dawnTime);
         duskTime = (TextView)findViewById(R.id.duskTime);
         
-        duskAlarmSet = (ToggleButton) findViewById(R.id.duskAlarmSet);
-        dawnAlarmSet = (ToggleButton) findViewById(R.id.dawnAlarmSet);
+        duskAlarmSet = (CompoundButton) findViewById(R.id.duskAlarmSet);
+        dawnAlarmSet = (CompoundButton) findViewById(R.id.dawnAlarmSet);
         
         delayDawnAlarm = (EditText) findViewById(R.id.delayDawnAlarm);
         delayDuskAlarm = (EditText) findViewById(R.id.delayDuskAlarm);
@@ -66,7 +70,6 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
     @Override
 	protected void onResume() {
 		super.onResume();
-
         
         locationManager = (LocationManager)this.getSystemService(LOCATION_SERVICE); //<2>
         
@@ -86,16 +89,23 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	}
     
     private void bindToggleButtons() {
-    	duskAlarmSet.setOnCheckedChangeListener(this);
-    	dawnAlarmSet.setOnCheckedChangeListener(this);
     	
     	Settings settings = Settings.getInstance(ShowStatusActivity.this);
-    	
+
     	dawnAlarmSet.setChecked(settings.getBoolean(Key.DAWN_ALARM));
     	duskAlarmSet.setChecked(settings.getBoolean(Key.DUSK_ALARM));
     	
     	delayDawnAlarm.setText(String.valueOf(settings.getInt(Key.DAWN_DELAY)));
     	delayDuskAlarm.setText(String.valueOf(settings.getInt(Key.DUSK_DELAY)));
+    	
+    	duskAlarmSet.setOnCheckedChangeListener(this);
+    	dawnAlarmSet.setOnCheckedChangeListener(this);
+    	
+    	if(BuildConfig.DEBUG) {
+    		bindTestButtons();
+    	} else {
+    		removeTestButtons();
+    	}
     }
 
 
@@ -136,13 +146,40 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	}
 	
 	private void stopAlarm(String type) {
-		Intent intent = new Intent(this, AlarmReceiver.class);
+		Intent intent = new Intent(ShowStatusActivity.this, AlarmReceiver.class);
 		intent.putExtra("alarm_type", type);
-		PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
+		PendingIntent sender = PendingIntent.getBroadcast(ShowStatusActivity.this, 0, intent, 0);
 		
 		AlarmManager alarmManager = (AlarmManager) ShowStatusActivity.this.getSystemService(Context.ALARM_SERVICE);
 		alarmManager.cancel(sender);
 	}
 
+	private void bindTestButtons() {
+		Button testDawn = ((Button) findViewById(R.id.testDawn));
+		testDawn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ShowStatusActivity.this, AlarmReceiver.class);
+				intent.putExtra("alarm_type", Key.DAWN_ALARM.toString());
+				sendBroadcast(intent);
+			}
+		});
+		
+		Button testDusk = ((Button) findViewById(R.id.testDusk));
+		testDusk.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ShowStatusActivity.this, AlarmReceiver.class);
+				intent.putExtra("alarm_type", Key.DUSK_ALARM.toString());
+				sendBroadcast(intent);
+			}
+		});
+	}
     
+	private void removeTestButtons() {
+		TableRow tableRow7 = ((TableRow) findViewById(R.id.tableRow7));
+		tableRow7.setVisibility(View.GONE);
+	}
 }
