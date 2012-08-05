@@ -11,7 +11,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -160,6 +159,7 @@ public class AlarmActivity extends Activity {
 		finish();
 	}
 
+	@SuppressWarnings("deprecation")
 	private void setNotification() {
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
@@ -185,6 +185,7 @@ public class AlarmActivity extends Activity {
 
 	}	
 	
+	@SuppressWarnings("deprecation")
 	private void setAlarmTimeoutNotification() {
 		String ns = Context.NOTIFICATION_SERVICE;
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);		

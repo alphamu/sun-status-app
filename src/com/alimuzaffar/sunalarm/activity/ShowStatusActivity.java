@@ -22,7 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.alimuzaffar.sunalarm.BuildConfig;
 import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppSettings;
@@ -198,7 +197,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			}
 		});
 
-		if (BuildConfig.DEBUG) {
+		if (AppSettings.DEBUG) {
 			bindTestButtons();
 		} else {
 			removeTestButtons();
