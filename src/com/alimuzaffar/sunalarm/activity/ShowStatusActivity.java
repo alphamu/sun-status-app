@@ -132,7 +132,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = false;
 			} else {
-				nextSunsetCal = todaySunsetCal;
+				nextSunriseCal = todaySunriseCal;
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = true;
 			}
