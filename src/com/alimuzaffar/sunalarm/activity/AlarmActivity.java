@@ -11,7 +11,9 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 
 import com.alimuzaffar.sunalarm.R;
@@ -34,6 +36,11 @@ public class AlarmActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_alarm);
 		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
+	            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD|
+	            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
+	            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+		
 		Bundle bundle = getIntent().getExtras();
 
 		if (bundle == null && savedInstanceState != null) {
@@ -44,6 +51,13 @@ public class AlarmActivity extends Activity {
 		} else {
 			fromAlert = bundle.getBoolean("from_alert");
 			alarmType = bundle.getString("alarm_type");
+		}
+		
+		if(bundle.getBoolean("alarm_auto_off")) {
+			NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+			mNotificationManager.cancel(_ID);
+			finish();
+			return;
 		}
 
 		if (fromAlert) {
@@ -64,6 +78,7 @@ public class AlarmActivity extends Activity {
 				}
 			});
 		}
+		
 	}
 	
 	
@@ -120,6 +135,7 @@ public class AlarmActivity extends Activity {
 			@Override
 			public void run() {
 				stopRingtone();
+				setAlarmTimeoutNotification();
 
 			}
 		}, (1000 * 60) * 5); // stop alarm after 5 minutes
@@ -167,8 +183,31 @@ public class AlarmActivity extends Activity {
 
 		mNotificationManager.notify(_ID, notification);
 
-	}
+	}	
 	
+	private void setAlarmTimeoutNotification() {
+		String ns = Context.NOTIFICATION_SERVICE;
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);		
+		
+		int icon = android.R.drawable.stat_notify_more;
+		CharSequence tickerText = getString(R.string.alarm_auto_off, (alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn) : getString(R.string.dusk));
+		long when = System.currentTimeMillis();
+
+		Notification notification = new Notification(icon, tickerText, when);
+
+		Context context = getApplicationContext();
+		CharSequence contentTitle = tickerText; // "My notification";
+		CharSequence contentText = getString(R.string.alarm_auto_off_description);
+		Intent notificationIntent = new Intent(this, AlarmActivity.class);
+		notificationIntent.putExtra("alarm_auto_off", true);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+		mNotificationManager.notify(_ID, notification);
+		
+	}
 
 
 }

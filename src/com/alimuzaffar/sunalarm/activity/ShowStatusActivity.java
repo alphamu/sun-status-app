@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -130,9 +132,9 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			}
 			
 			if(duskToday) {
-				duskTitle.setText(getString(R.string.s_dawn,getString(R.string.today)));
+				duskTitle.setText(getString(R.string.s_dusk,getString(R.string.today)));
 			} else {
-				duskTitle.setText(getString(R.string.s_dawn,getString(R.string.tomorrow)));
+				duskTitle.setText(getString(R.string.s_dusk,getString(R.string.tomorrow)));
 			}
 			
 			dawnTime.setText(dawnText);
@@ -153,6 +155,48 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		duskAlarmSet.setOnCheckedChangeListener(this);
 		dawnAlarmSet.setOnCheckedChangeListener(this);
+		
+		delayDawnAlarm.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) { }
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				AppSettings settings = AppSettings.getInstance(getApplicationContext());
+				int num = 0;
+				try {
+					num = Integer.parseInt(s.toString());
+				} catch (NumberFormatException nfe) {
+					num = 0;
+				}
+				settings.set(Key.DAWN_DELAY, num);
+			}
+		});
+		
+		delayDuskAlarm.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) { }
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				AppSettings settings = AppSettings.getInstance(getApplicationContext());
+				int num = 0;
+				try {
+					num = Integer.parseInt(s.toString());
+				} catch (NumberFormatException nfe) {
+					num = 0;
+				}
+				settings.set(Key.DUSK_DELAY, num);
+			}
+		});
 
 		if (BuildConfig.DEBUG) {
 			bindTestButtons();

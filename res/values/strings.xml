@@ -21,6 +21,8 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="ring_alarm">%s Alarm</string>
+    <string name="alarm_auto_off">%s Alarm timed off</string>
+    <string name="alarm_auto_off_description">Your alarm was automatically disabled after running for 5 minutes.</string>
     <string name="turn_off_alarm">Turn off alarm</string>
     <string name="alert_description">Click here to turn off the alarm.</string>
     
