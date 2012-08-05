@@ -15,13 +15,16 @@ import android.view.View;
 import android.widget.Button;
 
 import com.alimuzaffar.sunalarm.R;
-import com.alimuzaffar.sunalarm.util.Settings.Key;
+import com.alimuzaffar.sunalarm.util.AppSettings;
+import com.alimuzaffar.sunalarm.util.AppSettings.Key;
+import com.alimuzaffar.sunalarm.util.Utils;
 
 public class AlarmActivity extends Activity {
 	private static final int	_ID				= 20120804;
 	private static Ringtone		ringtone;
 
-	private String				alarmType;
+	private String				alarmType		= null;
+	private boolean				fromAlert		= false;
 
 	Handler						alarmAutoStop	= new Handler();
 	Runnable					stopAlarmTask;
@@ -30,30 +33,26 @@ public class AlarmActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_alarm);
+		
 		Bundle bundle = getIntent().getExtras();
 
-		if (bundle == null) {
+		if (bundle == null && savedInstanceState != null) {
+			bundle = savedInstanceState;
+		} else if (bundle == null) {
 			finish();
 			return;
+		} else {
+			fromAlert = bundle.getBoolean("from_alert");
+			alarmType = bundle.getString("alarm_type");
 		}
 
-		if (bundle.getBoolean("from_alert")) {
+		if (fromAlert) {
 			stopRingtone();
 		} else {
 			setNotification();
 
 			if (ringtone == null) {
 				playRingtone();
-
-				String type = bundle.getString("alarm_type");
-				if (type.equals(Key.DAWN_ALARM.toString())) {
-					setTitle(getString(R.string.ring_alarm, getString(R.string.dawn)));
-				} else if (type.equals(Key.DUSK_ALARM.toString())) {
-					setTitle(getString(R.string.ring_alarm, getString(R.string.dusk)));
-
-				}
-
-				alarmType = type;
 			}
 
 			Button turnOff = (Button) findViewById(R.id.turnAOffAlarm);
@@ -65,6 +64,41 @@ public class AlarmActivity extends Activity {
 				}
 			});
 		}
+	}
+	
+	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (alarmType.equals(Key.DAWN_ALARM.toString())) {
+			setTitle(getString(R.string.ring_alarm, getString(R.string.dawn)));
+			
+		} else if (alarmType.equals(Key.DUSK_ALARM.toString())) {
+			setTitle(getString(R.string.ring_alarm, getString(R.string.dusk)));
+		}
+	}
+
+
+
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		super.onSaveInstanceState(savedInstanceState);
+
+		Bundle bundle = getIntent().getExtras();
+		if (bundle != null) {
+			savedInstanceState.putBoolean("from_alert", bundle.getBoolean("from_alert"));
+			savedInstanceState.putString("alarm_type", bundle.getString("alarm_type"));
+		}
+
+	}
+
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+
+		alarmType = savedInstanceState.getString("alarm_type");
+		fromAlert = savedInstanceState.getBoolean("from_alert");
 	}
 
 	private void playRingtone() {
@@ -97,9 +131,15 @@ public class AlarmActivity extends Activity {
 		}
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.cancel(_ID);
-		if(ringtone != null) {
+		if (ringtone != null) {
 			ringtone.stop();
 			ringtone = null;
+		}
+		
+		//if alarm is on set next
+		AppSettings appSettings = AppSettings.getInstance(getApplicationContext());
+		if(appSettings.getBoolean(alarmType)) {
+			Utils.setAlarm(getApplicationContext(), alarmType);
 		}
 		finish();
 	}
@@ -109,13 +149,13 @@ public class AlarmActivity extends Activity {
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
 
 		int icon = android.R.drawable.stat_notify_more;
-		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType == Key.DAWN_ALARM.toString())? getString(R.string.dawn) : getString(R.string.dusk));
+		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn) : getString(R.string.dusk));
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
 
 		Context context = getApplicationContext();
-		CharSequence contentTitle = tickerText; //"My notification";
+		CharSequence contentTitle = tickerText; // "My notification";
 		CharSequence contentText = getString(R.string.alert_description);
 		Intent notificationIntent = new Intent(this, AlarmActivity.class);
 		notificationIntent.putExtra("alarm_type", alarmType);
@@ -128,5 +168,7 @@ public class AlarmActivity extends Activity {
 		mNotificationManager.notify(_ID, notification);
 
 	}
+	
+
 
 }

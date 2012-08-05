@@ -3,25 +3,27 @@ package com.alimuzaffar.sunalarm.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class Settings {
+public class AppSettings {
 	private static final String	SETTINGS_NAME	= "SUNALARM_SETTINGS";
-	private static Settings		settings;
+	private static AppSettings		settings;
 	private SharedPreferences	pref;
 
 	public enum Key {
 			DAWN_ALARM,
 			DUSK_ALARM,
 			DAWN_DELAY,
-			DUSK_DELAY;
+			DUSK_DELAY,
+			LAST_LONGITUDE,
+			LAST_LATITUDE;
 	}
 
-	public Settings(Context context) {
+	public AppSettings(Context context) {
 		pref = context.getSharedPreferences(SETTINGS_NAME, 0);
 	}
 
-	public static Settings getInstance(Context context) {
+	public static AppSettings getInstance(Context context) {
 		if (settings == null) {
-			settings = new Settings(context);
+			settings = new AppSettings(context);
 		}
 		return settings;
 	}
@@ -49,6 +51,12 @@ public class Settings {
 		editor.putFloat(key.toString(), val);
 		editor.commit();
 	}
+	
+	public void set(Key key, double val) {
+		SharedPreferences.Editor editor = pref.edit();
+		editor.putFloat(key.toString(), Double.valueOf(val).floatValue());
+		editor.commit();
+	}
 
 	public void set(Key key, long val) {
 		SharedPreferences.Editor editor = pref.edit();
@@ -72,7 +80,15 @@ public class Settings {
 		return pref.getFloat(key.toString(), 0);
 	}
 	
+	public double getDouble(Key key) {
+		return Float.valueOf(pref.getFloat(key.toString(), 0)).doubleValue();
+	}
+		
 	public boolean getBoolean(Key key) {
 		return pref.getBoolean(key.toString(), false);
+	}
+	
+	public boolean getBoolean(String key) {
+		return pref.getBoolean(key, false);
 	}
 }

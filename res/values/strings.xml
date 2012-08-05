@@ -3,10 +3,12 @@
     <string name="app_name">Sun Alarm</string>
     
     <string name="dawn">Dawn</string>
+    <string name="s_dawn">Dawn %s</string>
     <string name="dawnAlarm">Dawn Alarm</string>
     <string name="delay_dawn_alarm">Delay dawn alarm (mins):</string>
     
     <string name="dusk">Dusk</string>
+    <string name="s_dusk">Dusk %s</string>
     <string name="duskAlarm">Dusk Alarm</string>
     <string name="delay_dusk_alarm">Delay dusk alarm (mins):</string>
     
@@ -16,8 +18,13 @@
     
     <string name="int_0">0</string>
     
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
     <string name="ring_alarm">%s Alarm</string>
     <string name="turn_off_alarm">Turn off alarm</string>
     <string name="alert_description">Click here to turn off the alarm.</string>
+    
+    <string name="test_dawn">Test Dawn</string>
+	<string name="test_dusk">Test Dusk</string>
 
 </resources>

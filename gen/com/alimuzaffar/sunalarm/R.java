@@ -54,20 +54,26 @@ public final class R {
         public static final int show_status=0x7f070000;
     }
     public static final class string {
-        public static final int alert_description=0x7f05000d;
+        public static final int alert_description=0x7f050011;
         public static final int app_name=0x7f050000;
         public static final int dawn=0x7f050001;
-        public static final int dawnAlarm=0x7f050002;
-        public static final int delay_dawn_alarm=0x7f050003;
-        public static final int delay_dusk_alarm=0x7f050006;
-        public static final int dusk=0x7f050004;
-        public static final int duskAlarm=0x7f050005;
-        public static final int int_0=0x7f05000a;
-        public static final int menu_settings=0x7f050008;
-        public static final int ring_alarm=0x7f05000b;
-        public static final int time=0x7f050007;
-        public static final int title_activity_show_status=0x7f050009;
-        public static final int turn_off_alarm=0x7f05000c;
+        public static final int dawnAlarm=0x7f050003;
+        public static final int delay_dawn_alarm=0x7f050004;
+        public static final int delay_dusk_alarm=0x7f050008;
+        public static final int dusk=0x7f050005;
+        public static final int duskAlarm=0x7f050007;
+        public static final int int_0=0x7f05000c;
+        public static final int menu_settings=0x7f05000a;
+        public static final int ring_alarm=0x7f05000f;
+        public static final int s_dawn=0x7f050002;
+        public static final int s_dusk=0x7f050006;
+        public static final int test_dawn=0x7f050012;
+        public static final int test_dusk=0x7f050013;
+        public static final int time=0x7f050009;
+        public static final int title_activity_show_status=0x7f05000b;
+        public static final int today=0x7f05000d;
+        public static final int tomorrow=0x7f05000e;
+        public static final int turn_off_alarm=0x7f050010;
     }
     public static final class style {
         public static final int AppDialog=0x7f060001;
