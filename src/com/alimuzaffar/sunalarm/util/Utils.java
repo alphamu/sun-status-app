@@ -22,7 +22,16 @@ import android.widget.Toast;
 public class Utils {
 	public static void buildAlertMessageNoGps(final Activity context) {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		builder.setMessage("Yout GPS seems to be disabled, do you want to enable it?").setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		String message = "Yout GPS seems to be disabled, do you want to enable it?";
+		AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
+		
+		if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+			message += "\nYou appear to have a saved location.\nSelecting 'No' will use the saved location.";
+		} else {
+			message += "\nYou do not appear to have a saved location.\nIf you select 'No' the application will not work.";
+		}
+		
+		builder.setMessage(message).setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, final int id) {
 				context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 			}

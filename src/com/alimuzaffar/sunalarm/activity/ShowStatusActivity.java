@@ -61,7 +61,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		dawnTitle = (TextView) findViewById(R.id.dawn);
 		duskTitle = (TextView) findViewById(R.id.dusk);
-		
+
 		duskAlarmSet = (CompoundButton) findViewById(R.id.duskAlarmSet);
 		dawnAlarmSet = (CompoundButton) findViewById(R.id.dawnAlarmSet);
 
@@ -75,35 +75,55 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	protected void onResume() {
 		super.onResume();
 		
+		//enable everything
+		duskAlarmSet.setEnabled(true);
+		dawnAlarmSet.setEnabled(true);
+		delayDawnAlarm.setEnabled(true);
+		delayDuskAlarm.setEnabled(true);
+
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
+
+		AppSettings settings = AppSettings.getInstance(getApplicationContext());
+
+		SunriseSunsetCalculator calculator = null;
 
 		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>
 
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			Utils.buildAlertMessageNoGps(this);
-			
-		} else if (location != null) {
-			Log.d(TAG, location.toString());
-			Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
-			SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
-			
-			AppSettings settings = AppSettings.getInstance(getApplicationContext());
+			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LATITUDE)), TimeZone.getDefault().getID());
+
+			} else {
+				// disable everything
+				duskAlarmSet.setEnabled(false);
+				dawnAlarmSet.setEnabled(false);
+				delayDawnAlarm.setEnabled(false);
+				delayDuskAlarm.setEnabled(false);
+			}
+
+		}
+
+		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
+		if (calculator == null && location != null) {
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+
 			settings.set(Key.LAST_LATITUDE, location.getLatitude());
 			settings.set(Key.LAST_LONGITUDE, location.getLongitude());
-			
+
 			Calendar cal = Calendar.getInstance();
 			todaySunriseCal = calculator.getAstronomicalSunriseCalendarForDate(cal);
 			todaySunsetCal = calculator.getOfficialSunsetCalendarForDate(cal);
-			
+
 			cal.add(Calendar.DATE, 1);
 			tomorrowSunriseCal = calculator.getAstronomicalSunriseCalendarForDate(cal);
 			tomorrowSunsetCal = calculator.getOfficialSunsetCalendarForDate(cal);
-			
+
 			String dawnText = null;
 			boolean dawnToday, duskToday = false;
-			if(todaySunriseCal.before(Calendar.getInstance())) {
+			if (todaySunriseCal.before(Calendar.getInstance())) {
 				nextSunriseCal = tomorrowSunriseCal;
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = false;
@@ -112,9 +132,9 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = true;
 			}
-			
+
 			String duskText = null;
-			if(todaySunsetCal.before(Calendar.getInstance())) {
+			if (todaySunsetCal.before(Calendar.getInstance())) {
 				nextSunsetCal = tomorrowSunsetCal;
 				duskText = TIME_12HRS.format(nextSunsetCal.getTime());
 				duskToday = false;
@@ -123,19 +143,19 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				duskText = TIME_12HRS.format(nextSunsetCal.getTime());
 				duskToday = true;
 			}
-			
-			if(dawnToday) {
-				dawnTitle.setText(getString(R.string.s_dawn,getString(R.string.today)));
+
+			if (dawnToday) {
+				dawnTitle.setText(getString(R.string.s_dawn, getString(R.string.today)));
 			} else {
-				dawnTitle.setText(getString(R.string.s_dawn,getString(R.string.tomorrow)));
+				dawnTitle.setText(getString(R.string.s_dawn, getString(R.string.tomorrow)));
 			}
-			
-			if(duskToday) {
-				duskTitle.setText(getString(R.string.s_dusk,getString(R.string.today)));
+
+			if (duskToday) {
+				duskTitle.setText(getString(R.string.s_dusk, getString(R.string.today)));
 			} else {
-				duskTitle.setText(getString(R.string.s_dusk,getString(R.string.tomorrow)));
+				duskTitle.setText(getString(R.string.s_dusk, getString(R.string.tomorrow)));
 			}
-			
+
 			dawnTime.setText(dawnText);
 			duskTime.setText(duskText);
 		}
@@ -154,15 +174,15 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		duskAlarmSet.setOnCheckedChangeListener(this);
 		dawnAlarmSet.setOnCheckedChangeListener(this);
-		
+
 		delayDawnAlarm.addTextChangedListener(new TextWatcher() {
-			
+
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) { }
-			
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
 			@Override
 			public void afterTextChanged(Editable s) {
 				AppSettings settings = AppSettings.getInstance(getApplicationContext());
@@ -175,15 +195,15 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				settings.set(Key.DAWN_DELAY, num);
 			}
 		});
-		
+
 		delayDuskAlarm.addTextChangedListener(new TextWatcher() {
-			
+
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) { }
-			
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-			
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
 			@Override
 			public void afterTextChanged(Editable s) {
 				AppSettings settings = AppSettings.getInstance(getApplicationContext());
@@ -206,22 +226,22 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		//getMenuInflater().inflate(R.menu.show_status, menu);
-		//return true;
+		// getMenuInflater().inflate(R.menu.show_status, menu);
+		// return true;
 		return false;
 	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 		AppSettings settings = AppSettings.getInstance(ShowStatusActivity.this.getApplicationContext());
-		if (buttonView.getId() == R.id.dawnAlarmSet) {
+		if (buttonView.getId() == R.id.dawnAlarmSet && nextSunriseCal != null) {
 			settings.set(Key.DAWN_ALARM, isChecked);
 			if (isChecked)
 				Utils.setAlarm(getApplicationContext(), nextSunriseCal, Key.DAWN_ALARM.toString());
 			else
 				Utils.stopAlarm(getApplicationContext(), Key.DAWN_ALARM.toString());
 
-		} else if (buttonView.getId() == R.id.duskAlarmSet) {
+		} else if (buttonView.getId() == R.id.duskAlarmSet && nextSunsetCal != null) {
 			settings.set(Key.DUSK_ALARM, isChecked);
 			if (isChecked)
 				Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());

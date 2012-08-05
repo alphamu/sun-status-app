@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class AppSettings {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	
 	private static final String	SETTINGS_NAME	= "SUNALARM_SETTINGS";
 	private static AppSettings		settings;
