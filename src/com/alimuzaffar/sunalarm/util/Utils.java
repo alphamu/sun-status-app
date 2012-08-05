@@ -78,12 +78,12 @@ public class Utils {
 	public static void setAlarm(Context context, String alarmType) {
 		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE); // <2>
 
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
+		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); // <5>
 		SunriseSunsetCalculator calculator = null;
 		
 		AppSettings appSettings = AppSettings.getInstance(context);
 		
-		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+		if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(appSettings.getDouble(Key.LAST_LATITUDE), appSettings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 		} else if (location != null) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());

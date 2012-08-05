@@ -90,10 +90,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		SunriseSunsetCalculator calculator = null;
 
-		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>
-
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
-		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>z
+		
+		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
+		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		
+		if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 			if(!initialGPSCheck)
 				Utils.buildAlertMessageNoGps(this);
 			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
