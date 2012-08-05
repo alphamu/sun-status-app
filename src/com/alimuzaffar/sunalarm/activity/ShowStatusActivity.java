@@ -50,6 +50,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private Calendar				tomorrowSunsetCal;
 	private Calendar				nextSunriseCal;
 	private Calendar				nextSunsetCal;
+	
+	private static boolean initialGPSCheck = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,10 +94,11 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			Utils.buildAlertMessageNoGps(this);
+			if(!initialGPSCheck)
+				Utils.buildAlertMessageNoGps(this);
 			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
-
+				initialGPSCheck = true;
 			} else {
 				// disable everything
 				duskAlarmSet.setEnabled(false);

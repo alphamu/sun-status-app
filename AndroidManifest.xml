@@ -17,7 +17,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".activity.ShowStatusActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,6 +29,7 @@
             android:name=".activity.AlarmActivity"
             android:label="@string/ring_alarm"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/AppDialog" >
         </activity>
 
@@ -35,7 +37,6 @@
             android:name=".receiver.AlarmReceiver"
             android:process=":remote" >
         </receiver>
-        
         <receiver
             android:name=".receiver.ResetAlarmOnBootReceiver"
             android:enabled="true"
