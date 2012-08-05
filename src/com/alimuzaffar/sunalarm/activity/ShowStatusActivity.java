@@ -74,8 +74,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
-		//enable everything
+
+		// enable everything
 		duskAlarmSet.setEnabled(true);
 		dawnAlarmSet.setEnabled(true);
 		delayDawnAlarm.setEnabled(true);
@@ -112,7 +112,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 			settings.set(Key.LAST_LATITUDE, location.getLatitude());
 			settings.set(Key.LAST_LONGITUDE, location.getLongitude());
-
+		}
+		if (calculator != null) {
 			Calendar cal = Calendar.getInstance();
 			todaySunriseCal = calculator.getAstronomicalSunriseCalendarForDate(cal);
 			todaySunsetCal = calculator.getOfficialSunsetCalendarForDate(cal);
