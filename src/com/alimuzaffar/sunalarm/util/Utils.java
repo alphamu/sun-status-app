@@ -25,7 +25,7 @@ public class Utils {
 		String message = "Yout GPS seems to be disabled, do you want to enable it?";
 		AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
 		
-		if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+		if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LONGITUDE) != 0) {
 			message += "\nYou appear to have a saved location.\nSelecting 'No' will use the saved location.";
 		} else {
 			message += "\nYou do not appear to have a saved location.\nIf you select 'No' the application will not work.";

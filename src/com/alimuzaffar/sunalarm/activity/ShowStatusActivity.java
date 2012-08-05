@@ -94,7 +94,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			Utils.buildAlertMessageNoGps(this);
 			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
-				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LATITUDE)), TimeZone.getDefault().getID());
+				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 
 			} else {
 				// disable everything

@@ -56,7 +56,7 @@ public class AppSettings {
 	
 	public void set(Key key, double val) {
 		SharedPreferences.Editor editor = pref.edit();
-		editor.putFloat(key.toString(), Double.valueOf(val).floatValue());
+		editor.putString(key.toString(), String.valueOf(val));
 		editor.commit();
 	}
 
@@ -83,7 +83,11 @@ public class AppSettings {
 	}
 	
 	public double getDouble(Key key) {
-		return Float.valueOf(pref.getFloat(key.toString(), 0)).doubleValue();
+		try {
+		return Double.valueOf(pref.getString(key.toString(), "0"));
+		} catch (NumberFormatException nfe) {
+			return 0;
+		}
 	}
 		
 	public boolean getBoolean(Key key) {
