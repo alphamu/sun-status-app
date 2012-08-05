@@ -158,13 +158,13 @@
                 android:id="@+id/testDawn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Test Dawn" />
+                android:text="@string/test_dawn" />
 
             <Button
                 android:id="@+id/testDusk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Test Dusk" />
+                android:text="@string/test_dusk" />
         </TableRow>
     </TableLayout>
 
