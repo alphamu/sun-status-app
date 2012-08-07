@@ -165,7 +165,7 @@ public class AlarmActivity extends Activity {
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
 
 		int icon = android.R.drawable.stat_notify_more;
-		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn) : getString(R.string.dusk));
+		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType.equals(Key.DAWN_ALARM.toString())) ? getString(R.string.dawn) : getString(R.string.dusk));
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
