@@ -22,8 +22,8 @@
     </style>
   </head>
   <body>
-$ 1.1.4
-  % Version 1.1.4
+$ 1.1.5
+  % Version 1.1.5
   _ 2012-08-08
     * Added 'Settings' that allow you to change how Sunrise and Sunset are calculated.
 $ END_OF_CHANGE_LOG
