@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string-array
+        name="pref_sunZenithEntries">
+        <item>Astronomical (18 degrees below horizon)</item>
+        <item>Nautical (12 degrees below horizon)</item>
+        <item>Civil (6 degrees below horizon)</item>
+        <item>Official (5 degrees below the horizon)</item>
+    </string-array>
+        <string-array
+        name="pref_sunZenithValues">
+        <item>108</item>
+        <item>102</item>
+        <item>96</item>
+        <item>91</item>
+    </string-array>    
+</resources>

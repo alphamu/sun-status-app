@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="pref_dawnZenith"
+        android:title="@string/pref_dawnZenithTitle"
+        android:dialogTitle="@string/pref_dawnZenithTitle"
+        android:entries="@array/pref_sunZenithEntries"
+        android:entryValues="@array/pref_sunZenithValues"
+        android:defaultValue="@string/pref_sunZenithDawnDefault" />
+    
+    <ListPreference
+        android:key="pref_duskZenith"
+        android:title="@string/pref_duskZenithTitle"
+        android:dialogTitle="@string/pref_duskZenithTitle"
+        android:entries="@array/pref_sunZenithEntries"
+        android:entryValues="@array/pref_sunZenithValues"
+        android:defaultValue="@string/pref_sunZenithDuskDefault" />
+    
+</PreferenceScreen>

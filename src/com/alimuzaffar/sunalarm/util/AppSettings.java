@@ -69,6 +69,10 @@ public class AppSettings {
 	public String getString(Key key) {
 		return pref.getString(key.toString(), null);
 	}
+	
+	public String getString(String key) {
+		return pref.getString(key, null);
+	}	
 
 	public int getInt(Key key) {
 		return pref.getInt(key.toString(), 0);
