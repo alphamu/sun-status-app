@@ -8,7 +8,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -31,6 +33,7 @@ import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppSettings;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.alimuzaffar.sunalarm.util.ChangeLog;
+import com.alimuzaffar.sunalarm.util.LocationUtils;
 import com.alimuzaffar.sunalarm.util.Utils;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 
@@ -60,6 +63,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private static boolean initialGPSCheck = false;
 	
 	SunriseSunsetCalculator calculator = null;
+	
+	LocationListener coarseListener;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -85,6 +90,20 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	        cl.getLogDialog().show();
 	    
 	    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+	    
+		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>z
+		
+		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
+		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		if(location == null && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
+			calculate();
+		} else if (location != null) {
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+			calculate();
+		}
 	}
 
 	@Override
@@ -100,7 +119,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
-		AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
 
 		
 
@@ -109,12 +128,20 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
 		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 		
+		if(location == null && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
+			calculate();
+		} else if (location != null) {
+			calculate();
+		}
+		
 		if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 			if(!initialGPSCheck)
 				Utils.buildAlertMessageNoGps(this);
 			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 				initialGPSCheck = true;
+				calculate();
 			} else {
 				// disable everything
 				duskAlarmSet.setEnabled(false);
@@ -124,16 +151,36 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			}
 
 		}
-
-		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
-		if (calculator == null && location != null) {
-			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
-
-			settings.set(Key.LAST_LATITUDE, location.getLatitude());
-			settings.set(Key.LAST_LONGITUDE, location.getLongitude());
+		
+		if(location == null) {
+			Toast.makeText(this, "Fetching location to calculate times. This can take a while!", Toast.LENGTH_LONG).show();
 		}
 		
-		calculate();
+		//low accuracy provided used only.
+		LocationProvider low = locationManager.getProvider(locationManager.getBestProvider(LocationUtils.createCoarseCriteria(),true));
+		// using low accuracy provider... to listen for updates
+		locationManager.requestLocationUpdates(low.getName(), 0, 0f,
+		      coarseListener = new LocationListener() {
+		      public void onLocationChanged(Location location) {
+		        // do something here to save this new location
+		      	calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+				settings.set(Key.LAST_LATITUDE, location.getLatitude());
+				settings.set(Key.LAST_LONGITUDE, location.getLongitude());
+				calculate();
+				locationManager.removeUpdates(coarseListener);
+		      }
+		      public void onStatusChanged(String s, int i, Bundle bundle) {
+		 
+		      }
+		      public void onProviderEnabled(String s) {
+		    	  // try switching to a different provider
+		      }
+		      public void onProviderDisabled(String s) {
+		    	  // try switching to a different provider
+		      }
+		  });
+
+		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
 	}
 	
 	private void calculate() {
