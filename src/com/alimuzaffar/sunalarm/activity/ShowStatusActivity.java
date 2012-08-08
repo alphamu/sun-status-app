@@ -199,6 +199,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 					num = 0;
 				}
 				settings.set(Key.DAWN_DELAY, num);
+				if (settings.getBoolean(Key.DAWN_ALARM)) {
+					Utils.stopAlarm(getApplicationContext(), Key.DAWN_ALARM.toString());
+					Utils.setAlarm(getApplicationContext(), nextSunriseCal, Key.DAWN_ALARM.toString());
+				}
 			}
 		});
 
@@ -220,6 +224,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 					num = 0;
 				}
 				settings.set(Key.DUSK_DELAY, num);
+				if (settings.getBoolean(Key.DUSK_ALARM)) {
+					Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
+					Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
+				}
 			}
 		});
 

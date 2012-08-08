@@ -1,6 +1,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 
     <TableLayout
@@ -28,6 +28,7 @@
                 android:id="@+id/dawn"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:layout_weight="1"
                 android:text="@string/dawn"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -48,6 +49,7 @@
                 android:id="@+id/dusk"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/dusk"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -70,6 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="1"
                 android:text="@string/dawnAlarm"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -91,6 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="1"
                 android:text="@string/duskAlarm"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -105,12 +109,14 @@
         <TableRow
             android:id="@+id/tableRow5"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:minHeight="50sp" >
 
             <TextView
                 android:id="@+id/delay_dawn_alarm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/delay_dawn_alarm"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -130,12 +136,14 @@
         <TableRow
             android:id="@+id/tableRow6"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:minHeight="50sp" >
 
             <TextView
                 android:id="@+id/delay_dusk_alarm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/delay_dusk_alarm"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -158,6 +166,7 @@
                 android:id="@+id/testDawn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="@string/test_dawn" />
 
             <Button

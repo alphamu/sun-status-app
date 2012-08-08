@@ -30,7 +30,7 @@
             android:label="@string/ring_alarm"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppDialog" >
         </activity>
 
         <receiver

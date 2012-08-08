@@ -5,12 +5,12 @@
     <string name="dawn">Dawn</string>
     <string name="s_dawn">Dawn %s</string>
     <string name="dawnAlarm">Dawn Alarm</string>
-    <string name="delay_dawn_alarm">Delay dawn alarm (mins):</string>
+    <string name="delay_dawn_alarm">Delay dawn alarm\n(mins -before/+after):</string>
     
     <string name="dusk">Dusk</string>
     <string name="s_dusk">Dusk %s</string>
     <string name="duskAlarm">Dusk Alarm</string>
-    <string name="delay_dusk_alarm">Delay dusk alarm (mins):</string>
+    <string name="delay_dusk_alarm">Delay dusk alarm\n(mins -before/+after):</string>
     
     <string name="time">Time</string>
     <string name="menu_settings">Settings</string>

@@ -61,6 +61,10 @@ public class Utils {
 		}
 		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		if(AppSettings.DEBUG) {
+			alarmCal.setTimeInMillis(System.currentTimeMillis());
+			alarmCal.add(Calendar.SECOND, 10);
+		}
 		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmCal.getTimeInMillis(), sender);
 		
 		Toast.makeText(context, type+" set for "+alarmCal.getTime(), Toast.LENGTH_LONG).show();
