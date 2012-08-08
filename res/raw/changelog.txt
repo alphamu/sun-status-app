@@ -22,10 +22,19 @@
     </style>
   </head>
   <body>
+$ 1.1.6
+  % Version 1.1.6
+  _ 2012-08-09
+    * Fixed issue with galaxy s3 where app crashed if gps was off.
 $ 1.1.5
   % Version 1.1.5
   _ 2012-08-08
     * Added 'Settings' that allow you to change how Sunrise and Sunset are calculated.
+$ 1.1.4
+  % Version 1.1.4
+  _ 2012-08-07
+    * Switched to using coordinates from data rather than GPS where possible.
+    * Screen now wakes and alert displays on locked screen as well.
 $ END_OF_CHANGE_LOG
   </body>
 </html>
