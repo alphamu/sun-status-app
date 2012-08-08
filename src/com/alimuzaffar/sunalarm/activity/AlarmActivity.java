@@ -21,25 +21,31 @@ import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.alimuzaffar.sunalarm.util.Utils;
 
 public class AlarmActivity extends Activity {
-	private static final int	_ID				= 20120804;
-	private static Ringtone		ringtone;
+	@SuppressWarnings("unused")
+	private static String TAG = "AlarmActivity";
+	private static final int _ID = 20120804;
+	private static Ringtone ringtone;
 
-	private String				alarmType		= null;
-	private boolean				fromAlert		= false;
+	private String alarmType = null;
+	private boolean fromAlert = false;
 
-	Handler						alarmAutoStop	= new Handler();
-	Runnable					stopAlarmTask;
+	Handler alarmAutoStop = new Handler();
+	Runnable stopAlarmTask;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// new way of wake of doing things but only works on fullscreen
+		// activities.
+			getWindow().addFlags(
+					WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+							| WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+							| WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+							| WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+							| WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.activity_alarm);
-		
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON|
-	            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD|
-	            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
-	            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-		
+
 		Bundle bundle = getIntent().getExtras();
 
 		if (bundle == null && savedInstanceState != null) {
@@ -51,8 +57,8 @@ public class AlarmActivity extends Activity {
 			fromAlert = bundle.getBoolean("from_alert");
 			alarmType = bundle.getString("alarm_type");
 		}
-		
-		if(bundle.getBoolean("alarm_auto_off")) {
+
+		if (bundle.getBoolean("alarm_auto_off")) {
 			NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 			mNotificationManager.cancel(_ID);
 			finish();
@@ -77,23 +83,19 @@ public class AlarmActivity extends Activity {
 				}
 			});
 		}
-		
+
 	}
-	
-	
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if (alarmType.equals(Key.DAWN_ALARM.toString())) {
 			setTitle(getString(R.string.ring_alarm, getString(R.string.dawn)));
-			
+
 		} else if (alarmType.equals(Key.DUSK_ALARM.toString())) {
 			setTitle(getString(R.string.ring_alarm, getString(R.string.dusk)));
 		}
 	}
-
-
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -101,8 +103,10 @@ public class AlarmActivity extends Activity {
 
 		Bundle bundle = getIntent().getExtras();
 		if (bundle != null) {
-			savedInstanceState.putBoolean("from_alert", bundle.getBoolean("from_alert"));
-			savedInstanceState.putString("alarm_type", bundle.getString("alarm_type"));
+			savedInstanceState.putBoolean("from_alert",
+					bundle.getBoolean("from_alert"));
+			savedInstanceState.putString("alarm_type",
+					bundle.getString("alarm_type"));
 		}
 
 	}
@@ -119,11 +123,14 @@ public class AlarmActivity extends Activity {
 		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 		if (alert == null) {
 			// alert is null, using backup
-			alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-			if (alert == null) { // I can't see this ever being null (as always have a default notification) but just
+			alert = RingtoneManager
+					.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			if (alert == null) { // I can't see this ever being null (as always
+									// have a default notification) but just
 									// incase
 				// alert backup is null, using 2nd backup
-				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+				alert = RingtoneManager
+						.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 			}
 		}
 		ringtone = RingtoneManager.getRingtone(getApplicationContext(), alert);
@@ -135,7 +142,6 @@ public class AlarmActivity extends Activity {
 			public void run() {
 				stopRingtone();
 				setAlarmTimeoutNotification();
-
 			}
 		}, (1000 * 60) * 5); // stop alarm after 5 minutes
 	}
@@ -150,10 +156,11 @@ public class AlarmActivity extends Activity {
 			ringtone.stop();
 			ringtone = null;
 		}
-		
-		//if alarm is on set next
-		AppSettings appSettings = AppSettings.getInstance(getApplicationContext());
-		if(appSettings.getBoolean(alarmType)) {
+
+		// if alarm is on set next
+		AppSettings appSettings = AppSettings
+				.getInstance(getApplicationContext());
+		if (appSettings.getBoolean(alarmType)) {
 			Utils.setAlarm(getApplicationContext(), alarmType);
 		}
 		finish();
@@ -165,7 +172,10 @@ public class AlarmActivity extends Activity {
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
 
 		int icon = android.R.drawable.stat_notify_more;
-		CharSequence tickerText = getString(R.string.ring_alarm, (alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn) : getString(R.string.dusk));
+		CharSequence tickerText = getString(
+				R.string.ring_alarm,
+				(alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn)
+						: getString(R.string.dusk));
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
@@ -176,22 +186,27 @@ public class AlarmActivity extends Activity {
 		Intent notificationIntent = new Intent(this, AlarmActivity.class);
 		notificationIntent.putExtra("alarm_type", alarmType);
 		notificationIntent.putExtra("from_alert", true);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				notificationIntent, 0);
 
-		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		notification.setLatestEventInfo(context, contentTitle, contentText,
+				contentIntent);
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 
 		mNotificationManager.notify(_ID, notification);
 
-	}	
-	
+	}
+
 	@SuppressWarnings("deprecation")
 	private void setAlarmTimeoutNotification() {
 		String ns = Context.NOTIFICATION_SERVICE;
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);		
-		
+		NotificationManager mNotificationManager = (NotificationManager) getSystemService(ns);
+
 		int icon = android.R.drawable.stat_notify_more;
-		CharSequence tickerText = getString(R.string.alarm_auto_off, (alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn) : getString(R.string.dusk));
+		CharSequence tickerText = getString(
+				R.string.alarm_auto_off,
+				(alarmType == Key.DAWN_ALARM.toString()) ? getString(R.string.dawn)
+						: getString(R.string.dusk));
 		long when = System.currentTimeMillis();
 
 		Notification notification = new Notification(icon, tickerText, when);
@@ -201,14 +216,15 @@ public class AlarmActivity extends Activity {
 		CharSequence contentText = getString(R.string.alarm_auto_off_description);
 		Intent notificationIntent = new Intent(this, AlarmActivity.class);
 		notificationIntent.putExtra("alarm_auto_off", true);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				notificationIntent, 0);
 
-		notification.setLatestEventInfo(context, contentTitle, contentText, contentIntent);
+		notification.setLatestEventInfo(context, contentTitle, contentText,
+				contentIntent);
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 
 		mNotificationManager.notify(_ID, notification);
-		
-	}
 
+	}
 
 }
