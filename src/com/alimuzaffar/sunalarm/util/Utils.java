@@ -3,10 +3,6 @@ package com.alimuzaffar.sunalarm.util;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
-import com.alimuzaffar.sunalarm.util.AppSettings.Key;
-import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
-
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -16,13 +12,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
 import android.provider.Settings;
 import android.widget.Toast;
+
+import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
+import com.alimuzaffar.sunalarm.util.AppSettings.Key;
+import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 
 public class Utils {
 	public static void buildAlertMessageNoGps(final Activity context) {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		String message = "Yout GPS seems to be disabled, do you want to enable it?";
+		String message = "Your GPS seems to be disabled, do you want to enable it?";
 		AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
 		
 		if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LONGITUDE) != 0) {
@@ -103,6 +104,23 @@ public class Utils {
 		}
 		
 		Utils.setAlarm(context, nextAlarmCal, alarmType);
+	}
+
+	public static boolean checkInternet(Context context) {
+
+	    ConnectivityManager connec = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+	    android.net.NetworkInfo wifi = connec.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+	    android.net.NetworkInfo mobile = connec.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+	    // Here if condition check for wifi and mobile network is available or not.
+	    // If anyone of them is available or connected then it will return true, otherwise false;
+
+	    if (wifi.isConnected()) {
+	        return true;
+	    } else if (mobile.isConnected()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 }

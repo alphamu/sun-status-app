@@ -90,20 +90,6 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	        cl.getLogDialog().show();
 	    
 	    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-	    
-		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>z
-		
-		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
-		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		
-		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
-		if(location == null && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
-			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
-			calculate();
-		} else if (location != null) {
-			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
-			calculate();
-		}
 	}
 
 	@Override
@@ -119,14 +105,43 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
-		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());		
 
+		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>
 		
+		if(AppSettings.DEBUG) {
+			Log.d(TAG, "Enabled Providers:");
+			for(String p : locationManager.getProviders(true)) {
+				Log.d(TAG, p);
+			}
+			
+			Log.d(TAG, "All Providers");
+			for(String p : locationManager.getProviders(false)) {
+				Log.d(TAG, p);
+			}
+		}
+		
+		//low accuracy provided used only.
+		LocationProvider low;
+		try {
+			low = locationManager.getProvider(locationManager.getBestProvider(LocationUtils.createCoarseCriteria(),true));
+		} catch(IllegalArgumentException iae) {
+			low = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+		}
+		String providerName = LocationManager.NETWORK_PROVIDER;
+		if(low != null && low.getName() != null) {
+			if(AppSettings.DEBUG)
+				Log.d(TAG, "Low was not null and low.getName()="+low.getName());
+			providerName = low.getName();
+		}
+		if(providerName == null)
+			providerName = LocationManager.GPS_PROVIDER;
+		
+		if(AppSettings.DEBUG)
+			Log.d(TAG, "final provider name="+providerName);
 
-		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>z
-		
 		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
-		Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		Location location = locationManager.getLastKnownLocation(providerName);
 		
 		if(location == null && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
@@ -135,7 +150,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			calculate();
 		}
 		
-		if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+		if(AppSettings.DEBUG)
+			Log.d(TAG, "locationManager.isProviderEnabled()="+locationManager.isProviderEnabled(providerName));
+		
+		if (!locationManager.isProviderEnabled(providerName) /* || !Utils.checkInternet(this)*/) {
 			if(!initialGPSCheck)
 				Utils.buildAlertMessageNoGps(this);
 			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
@@ -156,10 +174,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			Toast.makeText(this, "Fetching location to calculate times. This can take a while!", Toast.LENGTH_LONG).show();
 		}
 		
-		//low accuracy provided used only.
-		LocationProvider low = locationManager.getProvider(locationManager.getBestProvider(LocationUtils.createCoarseCriteria(),true));
 		// using low accuracy provider... to listen for updates
-		locationManager.requestLocationUpdates(low.getName(), 0, 0f,
+		locationManager.requestLocationUpdates(providerName, 0, 0f,
 		      coarseListener = new LocationListener() {
 		      public void onLocationChanged(Location location) {
 		        // do something here to save this new location
@@ -310,8 +326,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = new Intent(this, SettingsActivity.class);
-		startActivityForResult(intent, SETTINGS);
+		if(item.getItemId() == R.id.menu_settings) {
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivityForResult(intent, SETTINGS);
+		}
 		return false;
 	}
 	
