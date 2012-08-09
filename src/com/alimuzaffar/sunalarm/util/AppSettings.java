@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class AppSettings {
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	
 	private static final String	SETTINGS_NAME	= "SUNALARM_SETTINGS";
 	private static AppSettings		settings;
@@ -16,7 +16,11 @@ public class AppSettings {
 			DAWN_DELAY,
 			DUSK_DELAY,
 			LAST_LONGITUDE,
-			LAST_LATITUDE;
+			LAST_LATITUDE,
+			RATER_DONTSHOWAGAIN,
+			RATER_LAUNCHCOUNT,
+			RATHER_DATEFIRSTLAUNCH;
+			
 	}
 
 	public AppSettings(Context context) {

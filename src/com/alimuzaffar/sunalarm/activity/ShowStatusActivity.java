@@ -32,6 +32,7 @@ import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppSettings;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
+import com.alimuzaffar.sunalarm.util.AppRater;
 import com.alimuzaffar.sunalarm.util.ChangeLog;
 import com.alimuzaffar.sunalarm.util.LocationUtils;
 import com.alimuzaffar.sunalarm.util.Utils;
@@ -90,6 +91,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	        cl.getLogDialog().show();
 	    
 	    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+	    
+	    AppRater.app_launched(this);
 	}
 
 	@Override

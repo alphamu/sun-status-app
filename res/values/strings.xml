@@ -1,6 +1,7 @@
 <resources>
 
     <string name="app_name">Sun Alarm</string>
+    <string name="app_package">com.alimuzaffar.sunalarm</string>
     
     <string name="dawn">Dawn</string>
     <string name="s_dawn">Dawn %s</string>
