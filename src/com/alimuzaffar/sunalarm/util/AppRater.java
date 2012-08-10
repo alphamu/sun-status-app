@@ -1,6 +1,7 @@
 package com.alimuzaffar.sunalarm.util;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -52,7 +53,7 @@ public class AppRater {
         if(android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
         	dialog = new AlertDialog.Builder(mContext, AlertDialog.THEME_HOLO_DARK);
         }
-        dialog.setIcon(R.drawable.ic_launcher)
+        Dialog alert = dialog.setIcon(R.drawable.ic_launcher)
         .setTitle("Rate "+APP_TITLE)
         .setMessage("If you enjoy using " + APP_TITLE + ", please take a moment to rate it. Thanks for your support!")
         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -75,6 +76,6 @@ public class AppRater {
         })
         .create();
        
-        dialog.show();        
+        alert.show();        
     }
 }
