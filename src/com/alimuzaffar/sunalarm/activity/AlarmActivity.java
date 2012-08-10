@@ -223,5 +223,9 @@ public class AlarmActivity extends Activity {
 		mNotificationManager.notify(_ID, notification);
 
 	}
+	
+	@Override
+	public void onBackPressed() {
+	}
 
 }
