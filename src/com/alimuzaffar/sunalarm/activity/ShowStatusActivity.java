@@ -355,7 +355,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			Utils.setAlarm(getApplicationContext(), nextSunriseCal, Key.DAWN_ALARM.toString());
 		}
 		
-		if (dusk && settings.getBoolean(Key.DAWN_ALARM)) {
+		if (dusk && settings.getBoolean(Key.DUSK_ALARM)) {
 			Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
 		}
