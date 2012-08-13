@@ -68,7 +68,7 @@ public class Utils {
 		}
 		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmCal.getTimeInMillis(), sender);
 		
-		Toast.makeText(context, type+" set for "+alarmCal.getTime(), Toast.LENGTH_LONG).show();
+		Toast.makeText(context, type+" set for "+alarmCal.getTime(), Toast.LENGTH_SHORT).show();
 	}
 
 	public static void stopAlarm(Context context, String type) {
@@ -92,6 +92,10 @@ public class Utils {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(appSettings.getDouble(Key.LAST_LATITUDE), appSettings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 		} else if (location != null) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+		}
+		
+		if(calculator == null) {
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(appSettings.getDouble(Key.LAST_LATITUDE), appSettings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 		}
 		
 		Calendar cal = Calendar.getInstance();
