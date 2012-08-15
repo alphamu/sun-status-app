@@ -101,7 +101,7 @@ public class Utils {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 1);
 		Calendar nextAlarmCal;
-		if(alarmType.equals(Key.DAWN_ALARM)) {
+		if(alarmType.equals(Key.DAWN_ALARM.toString())) {
 			nextAlarmCal = calculator.getAstronomicalSunriseCalendarForDate(cal);
 		} else {
 			nextAlarmCal = calculator.getOfficialSunsetCalendarForDate(cal);
