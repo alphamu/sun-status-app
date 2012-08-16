@@ -19,7 +19,8 @@ public class ResetAlarmOnPackageReplaced extends BroadcastReceiver {
 	            if(settings.getBoolean(Key.DAWN_ALARM)) {
 	            	Utils.stopAlarm(context, Key.DAWN_ALARM.toString());
 	            	Utils.setAlarm(context, Key.DAWN_ALARM.toString());
-	            } else if (settings.getBoolean(Key.DUSK_ALARM)) {
+	            } 
+	            if (settings.getBoolean(Key.DUSK_ALARM)) {
 	            	Utils.stopAlarm(context, Key.DUSK_ALARM.toString());
 	            	Utils.setAlarm(context, Key.DUSK_ALARM.toString());
 	            }
