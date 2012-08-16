@@ -22,9 +22,13 @@
     </style>
   </head>
   <body>
+$ 1.1.10
+  % Version 1.1.10
+  _ 2012-08-14
+    * Bug fix where next days alarm could be set incorrectly.
 $ 1.1.8
   % Version 1.1.8
-  _ 2012-08-010
+  _ 2012-08-10
     * Bug fix where 'whats new' dialog was empty.
 $ 1.1.7
   % Version 1.1.7
