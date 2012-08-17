@@ -10,10 +10,13 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
@@ -102,10 +105,12 @@ public class Utils {
 		cal.add(Calendar.DATE, 1);
 		Calendar nextAlarmCal;
 		if(alarmType.equals(Key.DAWN_ALARM.toString())) {
-			nextAlarmCal = calculator.getAstronomicalSunriseCalendarForDate(cal);
+			nextAlarmCal = Utils.getSunrise(context, calculator, cal);
 		} else {
-			nextAlarmCal = calculator.getOfficialSunsetCalendarForDate(cal);
+			nextAlarmCal = Utils.getSunset(context, calculator, cal);
 		}
+		
+		Log.d("Utils", "Next Alarm "+nextAlarmCal.getTime().toString());
 		
 		Utils.setAlarm(context, nextAlarmCal, alarmType);
 	}
@@ -125,6 +130,36 @@ public class Utils {
 	        return true;
 	    }
 	    return false;
+	}
+	
+	public static Calendar getSunrise(Context context, SunriseSunsetCalculator calculator, Calendar cal) {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		switch(Integer.valueOf(settings.getString("pref_dawnZenith", "108"))) {
+		case 108:
+			return calculator.getAstronomicalSunriseCalendarForDate(cal);
+		case 102:
+			return calculator.getNauticalSunriseCalendarForDate(cal);
+		case 96:
+			return calculator.getCivilSunriseCalendarForDate(cal);
+		default:
+			return calculator.getOfficialSunriseCalendarForDate(cal);
+		}
+		
+		
+	}
+	
+	public static Calendar getSunset(Context context, SunriseSunsetCalculator calculator, Calendar cal) {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		switch(Integer.valueOf(settings.getString("pref_duskZenith", "91"))) {
+		case 108:
+			return calculator.getAstronomicalSunsetCalendarForDate(cal);
+		case 102:
+			return calculator.getNauticalSunsetCalendarForDate(cal);
+		case 96:
+			return calculator.getCivilSunsetCalendarForDate(cal);
+		default:
+			return calculator.getOfficialSunsetCalendarForDate(cal);
+		}	
 	}
 
 }

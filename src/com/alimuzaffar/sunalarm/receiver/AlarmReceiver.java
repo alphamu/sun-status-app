@@ -17,7 +17,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 			String message = bundle.getString("alarm_type");
 
 			Intent newIntent = new Intent(context, AlarmActivity.class);
-			newIntent.putExtra("alarm_type", message);
+			newIntent.putExtra("alarm_type", message);////
 			newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			context.startActivity(newIntent);		
 			

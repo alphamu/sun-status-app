@@ -1,13 +1,13 @@
 package com.alimuzaffar.sunalarm.receiver;
 
-import com.alimuzaffar.sunalarm.util.AppSettings;
-import com.alimuzaffar.sunalarm.util.AppSettings.Key;
-import com.alimuzaffar.sunalarm.util.Utils;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.alimuzaffar.sunalarm.util.AppSettings;
+import com.alimuzaffar.sunalarm.util.AppSettings.Key;
+import com.alimuzaffar.sunalarm.util.Utils;
 
 public class ResetAlarmOnPackageReplaced extends BroadcastReceiver {
 

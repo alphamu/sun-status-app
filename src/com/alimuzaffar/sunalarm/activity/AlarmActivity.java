@@ -157,7 +157,7 @@ public class AlarmActivity extends Activity {
 			ringtone = null;
 		}
 
-		// if alarm is on set next
+		// if alarm is on set next////
 		AppSettings appSettings = AppSettings
 				.getInstance(getApplicationContext());
 		if (appSettings.getBoolean(alarmType)) {

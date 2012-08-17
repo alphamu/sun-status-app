@@ -6,7 +6,6 @@ import java.util.TimeZone;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,9 +29,9 @@ import android.widget.Toast;
 
 import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
+import com.alimuzaffar.sunalarm.util.AppRater;
 import com.alimuzaffar.sunalarm.util.AppSettings;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
-import com.alimuzaffar.sunalarm.util.AppRater;
 import com.alimuzaffar.sunalarm.util.ChangeLog;
 import com.alimuzaffar.sunalarm.util.LocationUtils;
 import com.alimuzaffar.sunalarm.util.Utils;
@@ -206,12 +205,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		if (calculator != null) {
 			Calendar cal = Calendar.getInstance();
 
-			todaySunriseCal = getSunrise(cal);
-			todaySunsetCal = getSunset(cal);
+			todaySunriseCal = Utils.getSunrise(this, calculator, cal);
+			todaySunsetCal = Utils.getSunset(this, calculator, cal);
 
 			cal.add(Calendar.DATE, 1);
-			tomorrowSunriseCal = getSunrise(cal);
-			tomorrowSunsetCal = getSunset(cal);
+			tomorrowSunriseCal = Utils.getSunrise(this, calculator, cal);
+			tomorrowSunsetCal = Utils.getSunset(this, calculator, cal);
 
 			String dawnText = null;
 			boolean dawnToday, duskToday = false;
@@ -379,36 +378,6 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 		}
 	}
-	
-	private Calendar getSunrise(Calendar cal) {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		switch(Integer.valueOf(settings.getString("pref_dawnZenith", "108"))) {
-		case 108:
-			return calculator.getAstronomicalSunriseCalendarForDate(cal);
-		case 102:
-			return calculator.getNauticalSunriseCalendarForDate(cal);
-		case 96:
-			return calculator.getCivilSunriseCalendarForDate(cal);
-		default:
-			return calculator.getOfficialSunriseCalendarForDate(cal);
-		}
-		
-		
-	}
-	
-	private Calendar getSunset(Calendar cal) {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-		switch(Integer.valueOf(settings.getString("pref_duskZenith", "91"))) {
-		case 108:
-			return calculator.getAstronomicalSunsetCalendarForDate(cal);
-		case 102:
-			return calculator.getNauticalSunsetCalendarForDate(cal);
-		case 96:
-			return calculator.getCivilSunsetCalendarForDate(cal);
-		default:
-			return calculator.getOfficialSunsetCalendarForDate(cal);
-		}	
-	}
 
 	private void bindTestButtons() {
 		Button testDawn = ((Button) findViewById(R.id.testDawn));
@@ -417,7 +386,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(ShowStatusActivity.this, AlarmReceiver.class);
-				intent.putExtra("alarm_type", Key.DAWN_ALARM.toString());
+				intent.putExtra("alarm_type", Key.DAWN_ALARM.toString());//
 				sendBroadcast(intent);
 			}
 		});
