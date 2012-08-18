@@ -24,6 +24,9 @@ import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 
 public class Utils {
+	public static final int REQUEST_DAWN = 2012081801;
+	public static final int REQUEST_DUSK = 2012081802;
+	
 	public static void buildAlertMessageNoGps(final Activity context) {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		String message = "Your GPS seems to be disabled, do you want to enable it?";
@@ -49,9 +52,17 @@ public class Utils {
 	}
 	
 	public static void setAlarm(Context context, Calendar calendar, String type) {
+		Log.d("Utils", "Alarm Type "+type);
 		Intent intent = new Intent(context, AlarmReceiver.class);
 		intent.putExtra("alarm_type", type);
-		PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
+		PendingIntent sender = null;
+		if(type.equalsIgnoreCase(Key.DAWN_ALARM.toString())) {
+			Log.d("Utils", "DAWN INTENT");
+			sender = PendingIntent.getBroadcast(context, REQUEST_DAWN, intent, 0);
+		} else if(type.equalsIgnoreCase(Key.DUSK_ALARM.toString())) {
+			Log.d("Utils", "DUSK INTENT");
+			sender = PendingIntent.getBroadcast(context, REQUEST_DUSK, intent, 0);
+		}
 		
 		Calendar alarmCal = Calendar.getInstance();
 		alarmCal.setTimeInMillis(calendar.getTimeInMillis());
@@ -60,16 +71,23 @@ public class Utils {
 		
 		if(type.equals(Key.DAWN_ALARM.toString())) {
 			alarmCal.add(Calendar.MINUTE, appSettings.getInt(Key.DAWN_DELAY));
-		} else {
+		} else if (type.equals(Key.DUSK_ALARM.toString())){
 			alarmCal.add(Calendar.MINUTE, appSettings.getInt(Key.DUSK_DELAY));
 		}
 		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		if(AppSettings.DEBUG) {
 			alarmCal.setTimeInMillis(System.currentTimeMillis());
-			alarmCal.add(Calendar.SECOND, 10);
+			if(type.equalsIgnoreCase(Key.DAWN_ALARM.toString()))
+				alarmCal.add(Calendar.SECOND, 11);
+			else if(type.equalsIgnoreCase(Key.DUSK_ALARM.toString()))
+				alarmCal.add(Calendar.SECOND, 17);
 		}
-		alarmManager.set(AlarmManager.RTC_WAKEUP, alarmCal.getTimeInMillis(), sender);
+		
+		if(sender != null) {
+			Log.d("Utils", "SETTING ALARM ");
+			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmCal.getTimeInMillis(), sender);
+		}
 		
 		Toast.makeText(context, type+" set for "+alarmCal.getTime(), Toast.LENGTH_SHORT).show();
 	}
@@ -77,10 +95,16 @@ public class Utils {
 	public static void stopAlarm(Context context, String type) {
 		Intent intent = new Intent(context, AlarmReceiver.class);
 		intent.putExtra("alarm_type", type);
-		PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
+		PendingIntent sender = null;;
+		if(type.equalsIgnoreCase(Key.DAWN_ALARM.toString()))
+			sender = PendingIntent.getBroadcast(context, REQUEST_DAWN, intent, 0);
+		else if(type.equalsIgnoreCase(Key.DUSK_ALARM.toString()))
+			sender = PendingIntent.getBroadcast(context, REQUEST_DUSK, intent, 0);
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.cancel(sender);
+		
+		if(sender != null)
+			alarmManager.cancel(sender);
 	}
 	
 	public static void setAlarm(Context context, String alarmType) {
