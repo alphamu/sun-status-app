@@ -42,4 +42,6 @@
     <string name="test_dawn">Test Dawn</string>
 	<string name="test_dusk">Test Dusk</string>
 
+	<string name="change_ringtone">Change ringtone</string>
+    <string name="random_ringtone">Random ringtone</string>
 </resources>

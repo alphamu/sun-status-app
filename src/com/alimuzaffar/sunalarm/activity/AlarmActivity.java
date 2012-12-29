@@ -6,11 +6,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -21,10 +22,9 @@ import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.alimuzaffar.sunalarm.util.Utils;
 
 public class AlarmActivity extends Activity {
-	@SuppressWarnings("unused")
 	private static String TAG = "AlarmActivity";
 	private static final int _ID = 20120804;
-	private static Ringtone ringtone;
+	MediaPlayer mMediaPlayer = null;
 
 	private String alarmType = null;
 	private boolean fromAlert = false;
@@ -70,7 +70,7 @@ public class AlarmActivity extends Activity {
 		} else {
 			setNotification();
 
-			if (ringtone == null) {
+			if (mMediaPlayer == null) {
 				playRingtone();
 			}
 
@@ -120,21 +120,20 @@ public class AlarmActivity extends Activity {
 	}
 
 	private void playRingtone() {
-		Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-		if (alert == null) {
-			// alert is null, using backup
-			alert = RingtoneManager
-					.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-			if (alert == null) { // I can't see this ever being null (as always
-									// have a default notification) but just
-									// incase
-				// alert backup is null, using 2nd backup
-				alert = RingtoneManager
-						.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+		try {
+			Uri alert = Utils.getRingtone(this);
+			mMediaPlayer = new MediaPlayer();
+			mMediaPlayer.setDataSource(this, alert);
+			final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+			if (audioManager.getStreamVolume(AudioManager.STREAM_RING) != 0) {
+				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+				mMediaPlayer.setLooping(true);
+				mMediaPlayer.prepare();
+				mMediaPlayer.start();
 			}
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage(), e);
 		}
-		ringtone = RingtoneManager.getRingtone(getApplicationContext(), alert);
-		ringtone.play();
 
 		alarmAutoStop.postDelayed(stopAlarmTask = new Runnable() {
 
@@ -152,9 +151,9 @@ public class AlarmActivity extends Activity {
 		}
 		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.cancel(_ID);
-		if (ringtone != null) {
-			ringtone.stop();
-			ringtone = null;
+		if (mMediaPlayer != null) {
+			mMediaPlayer.stop();
+			mMediaPlayer = null;
 		}
 
 		// if alarm is on set next////

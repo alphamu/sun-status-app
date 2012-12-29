@@ -13,7 +13,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
@@ -184,6 +186,40 @@ public class Utils {
 		default:
 			return calculator.getOfficialSunsetCalendarForDate(cal);
 		}	
+	}
+	
+	public static Uri getRingtone(Context context) {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		if (settings.getBoolean("pref_random", false)) {
+			Uri alert = null;
+			RingtoneManager ringtoneManager = new RingtoneManager(context);
+			ringtoneManager.setType(RingtoneManager.TYPE_ALARM);
+			int count = ringtoneManager.getCursor().getCount();
+			do {
+				int random = 0 + (int)(Math.random() * ((count - 0) + 1));
+				alert = ringtoneManager.getRingtoneUri(random);
+			} while (alert == null);
+			return alert;
+		} else {
+			String selectedRingtoneUri = settings.getString("pref_ringtone", null);
+			Uri alert = null;
+			if (selectedRingtoneUri != null) {
+				alert = Uri.parse(selectedRingtoneUri);
+			} else {
+				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+			}
+			if (alert == null) {
+				// alert is null, using backup
+				alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+				if (alert == null) { // I can't see this ever being null (as always
+										// have a default notification) but just
+										// incase
+					// alert backup is null, using 2nd backup
+					alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+				}
+			}
+			return alert;
+		}
 	}
 
 }

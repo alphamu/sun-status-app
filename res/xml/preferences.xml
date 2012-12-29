@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
     <ListPreference
-        android:key="pref_dawnZenith"
-        android:title="@string/pref_dawnZenithTitle"
+        android:defaultValue="@string/pref_sunZenithDawnDefault"
         android:dialogTitle="@string/pref_dawnZenithTitle"
         android:entries="@array/pref_sunZenithEntries"
         android:entryValues="@array/pref_sunZenithValues"
-        android:defaultValue="@string/pref_sunZenithDawnDefault" />
-    
+        android:key="pref_dawnZenith"
+        android:title="@string/pref_dawnZenithTitle" />
     <ListPreference
-        android:key="pref_duskZenith"
-        android:title="@string/pref_duskZenithTitle"
+        android:defaultValue="@string/pref_sunZenithDuskDefault"
         android:dialogTitle="@string/pref_duskZenithTitle"
         android:entries="@array/pref_sunZenithEntries"
         android:entryValues="@array/pref_sunZenithValues"
-        android:defaultValue="@string/pref_sunZenithDuskDefault" />
-    
+        android:key="pref_duskZenith"
+        android:title="@string/pref_duskZenithTitle" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="pref_random"
+        android:summary="Randomly select an alarm."
+        android:title="@string/random_ringtone" />
+
+    <RingtonePreference
+        android:key="pref_ringtone"
+        android:ringtoneType="alarm"
+        android:showDefault="true"
+        android:showSilent="false"
+        android:summary="Select a ringtone to play."
+        android:title="@string/change_ringtone" />
+
 </PreferenceScreen>
