@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -70,6 +71,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_show_status);
+		setVolumeControlStream(AudioManager.STREAM_ALARM);
 
 		dawnTime = (TextView) findViewById(R.id.dawnTime);
 		duskTime = (TextView) findViewById(R.id.duskTime);

@@ -44,4 +44,6 @@
 
 	<string name="change_ringtone">Change ringtone</string>
     <string name="random_ringtone">Random ringtone</string>
+    
+	<string name="volume_text">Note: Use VOLUME UP and DOWN keys to set the alarm volume.</string>
 </resources>

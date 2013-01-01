@@ -45,6 +45,7 @@ public class AlarmActivity extends Activity {
 							| WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_alarm);
+		setVolumeControlStream(AudioManager.STREAM_ALARM);
 
 		Bundle bundle = getIntent().getExtras();
 
@@ -125,8 +126,13 @@ public class AlarmActivity extends Activity {
 			mMediaPlayer = new MediaPlayer();
 			mMediaPlayer.setDataSource(this, alert);
 			final AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-			if (audioManager.getStreamVolume(AudioManager.STREAM_RING) != 0) {
-				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+			audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
+			
+			if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
+				audioManager.setStreamVolume(AudioManager.STREAM_ALARM, audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM), 0);
+			}
+			if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+				mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
 				mMediaPlayer.setLooping(true);
 				mMediaPlayer.prepare();
 				mMediaPlayer.start();
