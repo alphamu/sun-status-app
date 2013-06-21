@@ -88,9 +88,15 @@ public class UserLocation {
             if (gpsLocation != null && networkLocation != null) {
                 updateUILocation(getBetterLocation(gpsLocation, networkLocation));
             } else if (gpsLocation != null) {
-                updateUILocation(gpsLocation);
+            	if(listener != null)
+            		listener.onLocationChanged(gpsLocation);
+            	else
+            		updateUILocation(gpsLocation);
             } else if (networkLocation != null) {
-                updateUILocation(networkLocation);
+            	if(listener != null)
+            		listener.onLocationChanged(networkLocation);
+            	else
+            		updateUILocation(networkLocation);
             } else {
             	if(onNoProviderEnabledListener != null)
             		onNoProviderEnabledListener.onNoProviderEnabled();

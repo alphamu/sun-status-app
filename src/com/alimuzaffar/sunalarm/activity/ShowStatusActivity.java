@@ -137,13 +137,26 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// disable everything
-						dawnTime.setVisibility(View.INVISIBLE);
-						duskTime.setVisibility(View.INVISIBLE);
-						duskAlarmSet.setEnabled(false);
-						dawnAlarmSet.setEnabled(false);
-						delayDawnAlarm.setEnabled(false);
-						delayDuskAlarm.setEnabled(false);
+						
+						if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LONGITUDE) != 0) {
+							//use saved location.
+							calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
+							calculate();
+							dawnTimeProgress.setVisibility(View.INVISIBLE);
+							duskTimeProgress.setVisibility(View.INVISIBLE);
+							dawnTime.setVisibility(View.VISIBLE);
+							duskTime.setVisibility(View.VISIBLE);	
+						} else {
+							// disable everything, no saved location, no way to get it.
+							dawnTime.setVisibility(View.INVISIBLE);
+							duskTime.setVisibility(View.INVISIBLE);
+							dawnTimeProgress.setVisibility(View.INVISIBLE);
+							duskTimeProgress.setVisibility(View.INVISIBLE);
+							duskAlarmSet.setEnabled(false);
+							dawnAlarmSet.setEnabled(false);
+							delayDawnAlarm.setEnabled(false);
+							delayDuskAlarm.setEnabled(false);
+						}
 					}
 					
 				});
@@ -158,16 +171,18 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		dawnAlarmSet.setEnabled(true);
 		delayDawnAlarm.setEnabled(true);
 		delayDuskAlarm.setEnabled(true);
-//		dawnTime.setVisibility(View.VISIBLE);
-//		duskTime.setVisibility(View.VISIBLE);
 
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
-		
+		//if no loaction is available, initialize with saved settings.
 		if(!FOUND_LOCATION && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 			calculate();
+			dawnTimeProgress.setVisibility(View.INVISIBLE);
+			duskTimeProgress.setVisibility(View.INVISIBLE);
+			dawnTime.setVisibility(View.VISIBLE);
+			duskTime.setVisibility(View.VISIBLE);	
 		}
 		
 				
