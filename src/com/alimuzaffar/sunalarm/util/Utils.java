@@ -29,7 +29,7 @@ public class Utils {
 	public static final int REQUEST_DAWN = 2012081801;
 	public static final int REQUEST_DUSK = 2012081802;
 	
-	public static void buildAlertMessageNoGps(final Activity context) {
+	public static void buildAlertMessageNoGps(final Activity context, DialogInterface.OnClickListener cancel) {
 		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		String message = "Your GPS seems to be disabled, do you want to enable it?";
 		AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
@@ -44,7 +44,7 @@ public class Utils {
 			public void onClick(final DialogInterface dialog, final int id) {
 				context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 			}
-		}).setNegativeButton("No", new DialogInterface.OnClickListener() {
+		}).setNegativeButton("No", (cancel != null)? cancel : new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, final int id) {
 				dialog.cancel();
 			}

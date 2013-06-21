@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -35,6 +36,9 @@ import com.alimuzaffar.sunalarm.util.AppSettings;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.alimuzaffar.sunalarm.util.ChangeLog;
 import com.alimuzaffar.sunalarm.util.LocationUtils;
+import com.alimuzaffar.sunalarm.util.OnNoProviderEnabledListener;
+import com.alimuzaffar.sunalarm.util.UserLocation;
+import com.alimuzaffar.sunalarm.util.UserLocation.OnLocationChangedListener;
 import com.alimuzaffar.sunalarm.util.Utils;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 
@@ -42,13 +46,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private static final String		TAG			= "ShowStatusActivity";
 	private static int SETTINGS = 20120808;
 
-	LocationManager					locationManager;
-
 	@SuppressWarnings("unused")
 	private static SimpleDateFormat	TIME_24HRS	= new SimpleDateFormat("HH:mm");
 	private static SimpleDateFormat	TIME_12HRS	= new SimpleDateFormat("hh:mm a");
 
 	private TextView				duskTime, dawnTime, duskTitle, dawnTitle;
+	private View					duskTimeProgress, dawnTimeProgress;
 
 	private CompoundButton			duskAlarmSet, dawnAlarmSet;
 
@@ -61,11 +64,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private Calendar				nextSunriseCal;
 	private Calendar				nextSunsetCal;
 	
-	private static boolean initialGPSCheck = false;
-	
 	SunriseSunsetCalculator calculator = null;
 	
 	LocationListener coarseListener;
+	
+	UserLocation mUserLocation;
+	private static boolean FOUND_LOCATION = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +79,9 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 		dawnTime = (TextView) findViewById(R.id.dawnTime);
 		duskTime = (TextView) findViewById(R.id.duskTime);
+		
+		dawnTimeProgress = findViewById(R.id.dawnTimeProgress);
+		duskTimeProgress = findViewById(R.id.duskTimeProgress);
 
 		dawnTitle = (TextView) findViewById(R.id.dawn);
 		duskTitle = (TextView) findViewById(R.id.dusk);
@@ -93,114 +100,89 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	    
 	    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 	    
+	    mUserLocation = new UserLocation(this, null);
+
 	    AppRater.app_launched(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		
+	    mUserLocation.setOnLocationChangedListener(new OnLocationChangedListener() {
+			
+			@Override
+			public void onLocationChanged(Location location) {
+		        // do something here to save this new location
+				FOUND_LOCATION = true;
+		      	calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+				calculate();
+				settings.set(Key.LAST_LATITUDE, location.getLatitude());
+				settings.set(Key.LAST_LONGITUDE, location.getLongitude());
+				
+				dawnTimeProgress.setVisibility(View.INVISIBLE);
+				duskTimeProgress.setVisibility(View.INVISIBLE);
+				dawnTime.setVisibility(View.VISIBLE);
+				duskTime.setVisibility(View.VISIBLE);				
+			}
+		});
+	    
+	    mUserLocation.setOnNoProviderEnabledListener(new OnNoProviderEnabledListener() {
+			
+			@Override
+			public void onNoProviderEnabled() {
+				Utils.buildAlertMessageNoGps(ShowStatusActivity.this, new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// disable everything
+						dawnTime.setVisibility(View.INVISIBLE);
+						duskTime.setVisibility(View.INVISIBLE);
+						duskAlarmSet.setEnabled(false);
+						dawnAlarmSet.setEnabled(false);
+						delayDawnAlarm.setEnabled(false);
+						delayDuskAlarm.setEnabled(false);
+					}
+					
+				});
+
+			}
+		});
+		
+		mUserLocation.registerLocationListener();
 
 		// enable everything
 		duskAlarmSet.setEnabled(true);
 		dawnAlarmSet.setEnabled(true);
 		delayDawnAlarm.setEnabled(true);
 		delayDuskAlarm.setEnabled(true);
+//		dawnTime.setVisibility(View.VISIBLE);
+//		duskTime.setVisibility(View.VISIBLE);
 
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
-		final AppSettings settings = AppSettings.getInstance(getApplicationContext());		
-
-		locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE); // <2>
 		
-		if(AppSettings.DEBUG) {
-			Log.d(TAG, "Enabled Providers:");
-			for(String p : locationManager.getProviders(true)) {
-				Log.d(TAG, p);
-			}
-			
-			Log.d(TAG, "All Providers");
-			for(String p : locationManager.getProviders(false)) {
-				Log.d(TAG, p);
-			}
-		}
-		
-		//low accuracy provided used only.
-		LocationProvider low;
-		try {
-			low = locationManager.getProvider(locationManager.getBestProvider(LocationUtils.createCoarseCriteria(),true));
-		} catch(IllegalArgumentException iae) {
-			low = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
-		}
-		String providerName = LocationManager.NETWORK_PROVIDER;
-		if(low != null && low.getName() != null) {
-			if(AppSettings.DEBUG)
-				Log.d(TAG, "Low was not null and low.getName()="+low.getName());
-			providerName = low.getName();
-		}
-		if(providerName == null)
-			providerName = LocationManager.GPS_PROVIDER;
-		
-		if(AppSettings.DEBUG)
-			Log.d(TAG, "final provider name="+providerName);
-
-		//Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER); // <5>
-		Location location = locationManager.getLastKnownLocation(providerName);
-		
-		if(location == null && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+		if(!FOUND_LOCATION && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 			calculate();
-		} else if (location != null) {
-			calculate();
 		}
 		
-		if(AppSettings.DEBUG)
-			Log.d(TAG, "locationManager.isProviderEnabled()="+locationManager.isProviderEnabled(providerName));
-		
-		if (!locationManager.isProviderEnabled(providerName) /* || !Utils.checkInternet(this)*/) {
-			if(!initialGPSCheck)
-				Utils.buildAlertMessageNoGps(this);
-			if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
-				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
-				initialGPSCheck = true;
-				calculate();
-			} else {
-				// disable everything
-				duskAlarmSet.setEnabled(false);
-				dawnAlarmSet.setEnabled(false);
-				delayDawnAlarm.setEnabled(false);
-				delayDuskAlarm.setEnabled(false);
-			}
+				
 
-		}
-		
-		if(location == null) {
-			Toast.makeText(this, "Fetching location to calculate times. This can take a while!", Toast.LENGTH_LONG).show();
-		}
-		
-		// using low accuracy provider... to listen for updates
-		locationManager.requestLocationUpdates(providerName, 0, 0f,
-		      coarseListener = new LocationListener() {
-		      public void onLocationChanged(Location location) {
-		        // do something here to save this new location
-		      	calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
-				settings.set(Key.LAST_LATITUDE, location.getLatitude());
-				settings.set(Key.LAST_LONGITUDE, location.getLongitude());
-				calculate();
-				locationManager.removeUpdates(coarseListener);
-		      }
-		      public void onStatusChanged(String s, int i, Bundle bundle) {
-		 
-		      }
-		      public void onProviderEnabled(String s) {
-		    	  // try switching to a different provider
-		      }
-		      public void onProviderDisabled(String s) {
-		    	  // try switching to a different provider
-		      }
-		  });
 
 		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		mUserLocation.unRegisterLocationListener();
+		mUserLocation.setOnLocationChangedListener(null);
+		mUserLocation.setOnNoProviderEnabledListener(null);
 	}
 	
 	private void calculate() {
