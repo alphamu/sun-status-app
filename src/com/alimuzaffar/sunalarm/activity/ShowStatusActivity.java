@@ -2,6 +2,7 @@ package com.alimuzaffar.sunalarm.activity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import android.app.Activity;
@@ -47,8 +48,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private static int SETTINGS = 20120808;
 
 	@SuppressWarnings("unused")
-	private static SimpleDateFormat	TIME_24HRS	= new SimpleDateFormat("HH:mm");
-	private static SimpleDateFormat	TIME_12HRS	= new SimpleDateFormat("hh:mm a");
+	public static SimpleDateFormat	TIME_24HRS	= new SimpleDateFormat("HH:mm", Locale.getDefault());
+	public static SimpleDateFormat	TIME_12HRS	= new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
 	private TextView				duskTime, dawnTime, duskTitle, dawnTitle;
 	private View					duskTimeProgress, dawnTimeProgress;
@@ -185,9 +186,6 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			duskTime.setVisibility(View.VISIBLE);	
 		}
 		
-				
-
-
 		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
 	}
 	
