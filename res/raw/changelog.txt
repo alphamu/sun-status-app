@@ -22,8 +22,8 @@
     </style>
   </head>
   <body>
-$ 1.2.21
-  % Version 1.2.21
+$ 1.2.22
+  % Version 1.2.22
   _ 2012-06-28
   	* Changed UI of the widget  
 $ 1.2.20

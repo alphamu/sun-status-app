@@ -208,6 +208,11 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			cal.add(Calendar.DATE, 1);
 			tomorrowSunriseCal = Utils.getSunrise(this, calculator, cal);
 			tomorrowSunsetCal = Utils.getSunset(this, calculator, cal);
+			
+			if (todaySunriseCal == null || todaySunsetCal == null || tomorrowSunriseCal == null || tomorrowSunsetCal == null) {
+				Toast.makeText(this, "Something went wrong. Cannot calculate timing.", Toast.LENGTH_LONG).show();
+				return;
+			}
 
 			String dawnText = null;
 			boolean dawnToday, duskToday = false;
