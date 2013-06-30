@@ -362,12 +362,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	
 	private void updateAlarms(boolean dawn, boolean dusk) {
 		AppSettings settings = AppSettings.getInstance(getApplicationContext());
-		if (dawn && settings.getBoolean(Key.DAWN_ALARM)){
+		if (dawn && settings.getBoolean(Key.DAWN_ALARM) && nextSunriseCal != null){
 			Utils.stopAlarm(getApplicationContext(), Key.DAWN_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunriseCal, Key.DAWN_ALARM.toString());
 		}
 		
-		if (dusk && settings.getBoolean(Key.DUSK_ALARM)) {
+		if (dusk && settings.getBoolean(Key.DUSK_ALARM) && nextSunsetCal != null) {
 			Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
 		}
