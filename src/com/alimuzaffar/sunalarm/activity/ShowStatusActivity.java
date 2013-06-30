@@ -371,6 +371,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
 		}
+		
+		if(nextSunriseCal == null || nextSunsetCal == null) {
+			Toast.makeText(this, "ERROR: Alarm has not have been set.\nUnable to determine alarm times.\nEnable GPS and try again.", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	@Override
@@ -389,6 +393,10 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 				Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
 			else
 				Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
+		}
+		
+		if(nextSunriseCal == null || nextSunsetCal == null) {
+			Toast.makeText(this, "ERROR: Alarm has not have been set.\nUnable to determine alarm times.\nEnable GPS and try again.", Toast.LENGTH_LONG).show();
 		}
 	}
 
