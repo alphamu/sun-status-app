@@ -22,22 +22,26 @@
     </style>
   </head>
   <body>
+$ 1.2.24
+  % Version 1.2.14
+  _ 2013-07-08
+    * Fixed bug on some devices where time was not being calculated.
 $ 1.2.23
   % Version 1.2.23
-  _ 2012-07-01
+  _ 2013-07-01
   	* Fixed bug where app would crash on certain devices when alarm delay was changed.  
 $ 1.2.22
   % Version 1.2.22
-  _ 2012-06-28
+  _ 2013-06-28
   	* Changed UI of the widget  
 $ 1.2.20
   % Version 1.2.20
-  _ 2012-06-24
+  _ 2013-06-24
   	* Added a home screen widget that display the sehri and iftar timing.
   	* Added feedback option in menu items.
 $ 1.1.19
   % Version 1.1.19
-  _ 2012-06-21
+  _ 2013-06-21
 	* Improved code to determine user location.
 	* Added volume control feature. 
 $ 1.1.16

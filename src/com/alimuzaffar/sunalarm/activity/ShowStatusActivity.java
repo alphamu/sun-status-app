@@ -77,6 +77,9 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_show_status);
 		setVolumeControlStream(AudioManager.STREAM_ALARM);
+		
+		//initialize preferences
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		dawnTime = (TextView) findViewById(R.id.dawnTime);
 		duskTime = (TextView) findViewById(R.id.duskTime);
