@@ -159,14 +159,19 @@ public class Utils {
 	}
 	
 	public static Calendar getSunrise(Context context, SunriseSunsetCalculator calculator, Calendar cal) {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		switch(Integer.valueOf(settings.getString("pref_dawnZenith", "108"))) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		switch(Integer.valueOf(prefs.getString("pref_dawnZenith", "108"))) {
 		case 108:
 			return calculator.getAstronomicalSunriseCalendarForDate(cal);
 		case 102:
 			return calculator.getNauticalSunriseCalendarForDate(cal);
 		case 96:
 			return calculator.getCivilSunriseCalendarForDate(cal);
+		case -1:
+			final AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
+			int deg = prefs.getInt("pref_dawnZenith_other", 90);
+			return SunriseSunsetCalculator.getSunrise(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE), cal.getTimeZone(), cal, deg);
+			
 		default:
 			return calculator.getOfficialSunriseCalendarForDate(cal);
 		}
@@ -175,14 +180,19 @@ public class Utils {
 	}
 	
 	public static Calendar getSunset(Context context, SunriseSunsetCalculator calculator, Calendar cal) {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		switch(Integer.valueOf(settings.getString("pref_duskZenith", "91"))) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		switch(Integer.valueOf(prefs.getString("pref_duskZenith", "91"))) {
 		case 108:
 			return calculator.getAstronomicalSunsetCalendarForDate(cal);
 		case 102:
 			return calculator.getNauticalSunsetCalendarForDate(cal);
 		case 96:
 			return calculator.getCivilSunsetCalendarForDate(cal);
+		case -1:
+			final AppSettings settings = AppSettings.getInstance(context.getApplicationContext());
+			int deg = prefs.getInt("pref_duskZenith_other", 90);
+			return SunriseSunsetCalculator.getSunset(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE), cal.getTimeZone(), cal, deg);
+			
 		default:
 			return calculator.getOfficialSunsetCalendarForDate(cal);
 		}	

@@ -36,7 +36,7 @@
     <string name="random_ringtone">Random ringtone</string>
     <string name="volume_text">Note: Use VOLUME UP and DOWN keys to set the alarm volume.</string>
     <string name="feedback">Feature request / Report Bug</string>
-    <string name="menu_changeloc">Change location</string>
+    <string name="menu_changeloc">Set location</string>
     <string name="clear_set_location">Clear set location</string>
 
     <!-- Location -->

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:robobunny="http://robobunny.com" >
 
     <ListPreference
         android:defaultValue="@string/pref_sunZenithDawnDefault"
@@ -8,6 +9,17 @@
         android:entryValues="@array/pref_sunZenithValues"
         android:key="pref_dawnZenith"
         android:title="@string/pref_dawnZenithTitle" />
+
+    <com.alimuzaffar.sunalarm.util.SeekBarPreference
+        android:defaultValue="-18"
+        android:key="pref_dawnZenith_other"
+        android:max="25"
+        android:summary="Lower earlier, higher later."
+        android:title="Angle of the sun at dawn"
+        robobunny:min="-25"
+        robobunny:unitsLeft=""
+        robobunny:unitsRight="deg" />
+
     <ListPreference
         android:defaultValue="@string/pref_sunZenithDuskDefault"
         android:dialogTitle="@string/pref_duskZenithTitle"
@@ -15,6 +27,16 @@
         android:entryValues="@array/pref_sunZenithValues"
         android:key="pref_duskZenith"
         android:title="@string/pref_duskZenithTitle" />
+
+    <com.alimuzaffar.sunalarm.util.SeekBarPreference
+        android:defaultValue="-1"
+        android:key="pref_duskZenith_other"
+        android:max="25"
+        android:summary="Lower later, higher earlier."
+        android:title="Angle of the sun at dusk"
+        robobunny:min="-25"
+        robobunny:unitsLeft=""
+        robobunny:unitsRight="deg" />
 
     <CheckBoxPreference
         android:defaultValue="false"

@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,6 +19,8 @@ import android.database.MatrixCursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.media.AudioManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -193,9 +196,15 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 			}
 		});
 
-		if (!settings.getBoolean(Key.MANUAL_LOCATION, false))
+		if (!settings.getBoolean(Key.MANUAL_LOCATION, false)) {
 			mUserLocation.registerLocationListener();
-
+			getSupportActionBar().setSubtitle("Automatically detect location.");
+		} else {
+			String location = settings.getString(Key.MANUAL_LOCATION_NAME);
+			getSupportActionBar().setSubtitle(location);
+			FOUND_LOCATION = false;
+		}
+		
 		// enable everything
 		duskAlarmSet.setEnabled(true);
 		dawnAlarmSet.setEnabled(true);
@@ -205,6 +214,7 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
+		Log.d(TAG, "found_loc="+FOUND_LOCATION);
 		// if no loaction is available, initialize with saved settings.
 		if (!FOUND_LOCATION && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
 			String timeZoneId = settings.getString(Key.TIMEZONE_ID, TimeZone.getDefault().getID());
@@ -401,7 +411,10 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 
 				mSearchView.setSuggestionsAdapter(simpleCursorAdapter);
 			}
-
+			if(!isOnline()) {
+				Toast.makeText(this, "No internet connection detected.", Toast.LENGTH_SHORT).show();
+				item.collapseActionView();
+			}
 		} else if (item.getItemId() == R.id.menu_clear_location) {
 			clearSetLocation();
 		}
@@ -489,11 +502,13 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 		TableRow tableRow7 = ((TableRow) findViewById(R.id.tableRow7));
 		tableRow7.setVisibility(View.GONE);
 	}
-	
+
 	private void clearSetLocation() {
 		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
 		mUserLocation.registerLocationListener();
 		settings.set(Key.MANUAL_LOCATION, false);
+		settings.set(Key.MANUAL_LOCATION_NAME, "Automatically detect location.");
+		getSupportActionBar().setSubtitle("Automatically detect location.");
 
 	}
 
@@ -525,7 +540,7 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 						simpleCursorAdapter.changeCursor(cursor);
 
 					mSearchView.setSuggestionsAdapter(simpleCursorAdapter);
-				}	
+				}
 			}).execute(newText); // start the background processing
 		}
 		return false;
@@ -533,29 +548,31 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 
 	@Override
 	public boolean onSuggestionSelect(int position) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean onSuggestionClick(int position) {
+
+		mUserLocation.unRegisterLocationListener();
 		
 		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
-		
+
 		Cursor c = mSearchView.getSuggestionsAdapter().getCursor();
 		c.moveToPosition(position);
 		String suggestion = c.getString(1);
 		mChangeLocation.collapseActionView();
-		//Log.d(TAG, "NEW LOCATION >>>> " + suggestion);
-		Toast.makeText(this, "Setting your location to \"" + suggestion+"\"", Toast.LENGTH_SHORT).show();
-		
+		// Log.d(TAG, "NEW LOCATION >>>> " + suggestion);
+		Toast.makeText(this, "Setting your location to \"" + suggestion + "\"", Toast.LENGTH_SHORT).show();
+
 		settings.set(Key.MANUAL_LOCATION, true);
-		
+		settings.set(Key.MANUAL_LOCATION_NAME, suggestion);
+		getSupportActionBar().setSubtitle(suggestion);
+
 		(new FetchGeoLocationAsyncTask() {
 			protected void onPostExecute(JSONObject result) {
 				// set lat lng & timezone
 				try {
-					
 					double lat = Double.parseDouble(result.getString("lat"));
 					double lng = Double.parseDouble(result.getString("lng"));
 					settings.set(Key.LAST_LATITUDE, lat);
@@ -575,6 +592,15 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 
 		return false;
 	}
+
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		if (netInfo != null && netInfo.isConnected()) {
+			return true;
+		}
+		return false;
+	}
 }
 
 class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
@@ -586,16 +612,16 @@ class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
 	protected MatrixCursor doInBackground(String... params) {
 		String[] columnNames = { "_id", "text" };
 		MatrixCursor cursor = new MatrixCursor(columnNames);
-				
+
 		try {
 			String url = String.format(PLACES_URL, URLEncoder.encode(params[0], "UTF-8"));
 			JSONObject jsonObject = JsonHttpHelper.getJson(url);
 			JSONArray predictions = jsonObject.optJSONArray("predictions");
-			
+
 			if (predictions != null) {
 
 				List<String> results = new ArrayList<String>();
-				
+
 				for (int i = 0; i < predictions.length(); i++) {
 					JSONObject item = predictions.getJSONObject(i);
 					String description = item.getString("description");
@@ -622,7 +648,7 @@ class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
 
 class FetchGeoLocationAsyncTask extends AsyncTask<String, Integer, JSONObject> {
 	private static final String GEO_URL = "http://maps.google.com/maps/api/geocode/json?address=%s&sensor=true";
-	private static final String TZ_URL = "https://maps.googleapis.com/maps/api/timezone/json?location=%s&timestamp="+System.currentTimeMillis()/1000+"&sensor=true";
+	private static final String TZ_URL = "https://maps.googleapis.com/maps/api/timezone/json?location=%s&timestamp=" + System.currentTimeMillis() / 1000 + "&sensor=true";
 
 	@Override
 	protected JSONObject doInBackground(String... params) {
@@ -643,13 +669,13 @@ class FetchGeoLocationAsyncTask extends AsyncTask<String, Integer, JSONObject> {
 			String lng = geo.getString("lng");
 			result.put("lng", lng);
 
-			String tzUrl = String.format(TZ_URL, URLEncoder.encode(lat+","+lng, "UTF-8"));
+			String tzUrl = String.format(TZ_URL, URLEncoder.encode(lat + "," + lng, "UTF-8"));
 			JSONObject tzObj = JsonHttpHelper.getJson(tzUrl);
-			if(tzObj != null) {
+			if (tzObj != null) {
 				String tzId = tzObj.getString("timeZoneId");
 				result.put("timeZoneId", tzId);
 			}
-			
+
 			return result;
 
 		} catch (Exception e) {

@@ -6,6 +6,7 @@
         <item>Nautical (12 degrees below horizon)</item>
         <item>Civil (6 degrees below horizon)</item>
         <item>Official (5 degrees below the horizon)</item>
+        <item>Other</item>
     </string-array>
         <string-array
         name="pref_sunZenithValues">
@@ -13,5 +14,6 @@
         <item>102</item>
         <item>96</item>
         <item>91</item>
+        <item>-1</item>
     </string-array>    
 </resources>

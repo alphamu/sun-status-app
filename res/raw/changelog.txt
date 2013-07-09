@@ -22,6 +22,11 @@
     </style>
   </head>
   <body>
+$ 1.3.25
+  % Version 1.3.25
+  _ 2013-07-10
+    * Added ability to manually set location. Requires internet access. 
+    * Added additional configuration options for sunrise and sunset calculations. 
 $ 1.2.24
   % Version 1.2.14
   _ 2013-07-08
