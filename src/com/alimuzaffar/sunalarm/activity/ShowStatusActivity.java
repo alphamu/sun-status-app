@@ -1,25 +1,30 @@
 package com.alimuzaffar.sunalarm.activity;
 
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import android.app.Activity;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.MatrixCursor;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -30,60 +35,74 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
+import com.actionbarsherlock.widget.SearchView;
+import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
+import com.actionbarsherlock.widget.SearchView.OnSuggestionListener;
 import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppRater;
 import com.alimuzaffar.sunalarm.util.AppSettings;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.alimuzaffar.sunalarm.util.ChangeLog;
-import com.alimuzaffar.sunalarm.util.LocationUtils;
+import com.alimuzaffar.sunalarm.util.JsonHttpHelper;
 import com.alimuzaffar.sunalarm.util.OnNoProviderEnabledListener;
 import com.alimuzaffar.sunalarm.util.UserLocation;
 import com.alimuzaffar.sunalarm.util.UserLocation.OnLocationChangedListener;
 import com.alimuzaffar.sunalarm.util.Utils;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 
-public class ShowStatusActivity extends Activity implements OnCheckedChangeListener {
-	private static final String		TAG			= "ShowStatusActivity";
+public class ShowStatusActivity extends SherlockActivity implements OnCheckedChangeListener, OnQueryTextListener, OnSuggestionListener {
+	private static final String TAG = "ShowStatusActivity";
 	private static int SETTINGS = 20120808;
 
-	@SuppressWarnings("unused")
-	public static SimpleDateFormat	TIME_24HRS	= new SimpleDateFormat("HH:mm", Locale.getDefault());
-	public static SimpleDateFormat	TIME_12HRS	= new SimpleDateFormat("hh:mm a", Locale.getDefault());
+	public static SimpleDateFormat TIME_24HRS = new SimpleDateFormat("HH:mm", Locale.getDefault());
+	public static SimpleDateFormat TIME_12HRS = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
-	private TextView				duskTime, dawnTime, duskTitle, dawnTitle;
-	private View					duskTimeProgress, dawnTimeProgress;
+	private TextView duskTime, dawnTime, duskTitle, dawnTitle;
+	private View duskTimeProgress, dawnTimeProgress;
 
-	private CompoundButton			duskAlarmSet, dawnAlarmSet;
+	private CompoundButton duskAlarmSet, dawnAlarmSet;
 
-	private EditText				delayDawnAlarm, delayDuskAlarm;
+	private EditText delayDawnAlarm, delayDuskAlarm;
 
-	private Calendar				todaySunriseCal;
-	private Calendar				todaySunsetCal;
-	private Calendar				tomorrowSunriseCal;
-	private Calendar				tomorrowSunsetCal;
-	private Calendar				nextSunriseCal;
-	private Calendar				nextSunsetCal;
-	
+	private Calendar todaySunriseCal;
+	private Calendar todaySunsetCal;
+	private Calendar tomorrowSunriseCal;
+	private Calendar tomorrowSunsetCal;
+	private Calendar nextSunriseCal;
+	private Calendar nextSunsetCal;
+
 	SunriseSunsetCalculator calculator = null;
-	
+
 	LocationListener coarseListener;
-	
+
 	UserLocation mUserLocation;
 	private static boolean FOUND_LOCATION = false;
+
+	SearchView mSearchView;
+	SimpleCursorAdapter simpleCursorAdapter;
+	MenuItem mChangeLocation;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		// requestWindowFeature(Window.FEATURE_PROGRESS);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
 		setContentView(R.layout.activity_show_status);
 		setVolumeControlStream(AudioManager.STREAM_ALARM);
-		
-		//initialize preferences
+
+		// initialize preferences
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
 		dawnTime = (TextView) findViewById(R.id.dawnTime);
 		duskTime = (TextView) findViewById(R.id.duskTime);
-		
+
 		dawnTimeProgress = findViewById(R.id.dawnTimeProgress);
 		duskTimeProgress = findViewById(R.id.duskTimeProgress);
 
@@ -97,61 +116,67 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		delayDuskAlarm = (EditText) findViewById(R.id.delayDuskAlarm);
 
 		bindToggleButtons();
-		
-		ChangeLog cl = new ChangeLog(this);
-	    if (cl.firstRun())
-	        cl.getLogDialog().show();
-	    
-	    PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-	    
-	    mUserLocation = new UserLocation(this, null);
 
-	    AppRater.app_launched(this);
+		ChangeLog cl = new ChangeLog(this);
+		if (cl.firstRun())
+			cl.getLogDialog().show();
+
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+		mUserLocation = new UserLocation(this, null);
+
+		AppRater.app_launched(this);
+
+		// needed for 2.3 < devices.
+		setSupportProgressBarIndeterminateVisibility(false);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
-		
-	    mUserLocation.setOnLocationChangedListener(new OnLocationChangedListener() {
-			
+
+		mUserLocation.setOnLocationChangedListener(new OnLocationChangedListener() {
+
 			@Override
 			public void onLocationChanged(Location location) {
-		        // do something here to save this new location
+				// do something here to save this new location
 				FOUND_LOCATION = true;
-		      	calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
-				calculate();
+				calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(location.getLatitude(), location.getLongitude()), TimeZone.getDefault().getID());
+				calculate(TimeZone.getDefault().getID());
 				settings.set(Key.LAST_LATITUDE, location.getLatitude());
 				settings.set(Key.LAST_LONGITUDE, location.getLongitude());
-				
+				settings.set(Key.TIMEZONE_ID, TimeZone.getDefault().getID());
+
 				dawnTimeProgress.setVisibility(View.INVISIBLE);
 				duskTimeProgress.setVisibility(View.INVISIBLE);
 				dawnTime.setVisibility(View.VISIBLE);
-				duskTime.setVisibility(View.VISIBLE);				
+				duskTime.setVisibility(View.VISIBLE);
 			}
 		});
-	    
-	    mUserLocation.setOnNoProviderEnabledListener(new OnNoProviderEnabledListener() {
-			
+
+		mUserLocation.setOnNoProviderEnabledListener(new OnNoProviderEnabledListener() {
+
 			@Override
 			public void onNoProviderEnabled() {
 				Utils.buildAlertMessageNoGps(ShowStatusActivity.this, new DialogInterface.OnClickListener() {
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						
-						if(settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LONGITUDE) != 0) {
-							//use saved location.
-							calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
-							calculate();
+
+						if (settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LONGITUDE) != 0) {
+							// use saved location.
+							String timeZoneId = settings.getString(Key.TIMEZONE_ID, TimeZone.getDefault().getID());
+							calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), timeZoneId);
+							calculate(timeZoneId);
 							dawnTimeProgress.setVisibility(View.INVISIBLE);
 							duskTimeProgress.setVisibility(View.INVISIBLE);
 							dawnTime.setVisibility(View.VISIBLE);
-							duskTime.setVisibility(View.VISIBLE);	
+							duskTime.setVisibility(View.VISIBLE);
 						} else {
-							// disable everything, no saved location, no way to get it.
+							// disable everything, no saved
+							// location, no way to get it.
 							dawnTime.setVisibility(View.INVISIBLE);
 							duskTime.setVisibility(View.INVISIBLE);
 							dawnTimeProgress.setVisibility(View.INVISIBLE);
@@ -162,13 +187,14 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 							delayDuskAlarm.setEnabled(false);
 						}
 					}
-					
+
 				});
 
 			}
 		});
-		
-		mUserLocation.registerLocationListener();
+
+		if (!settings.getBoolean(Key.MANUAL_LOCATION, false))
+			mUserLocation.registerLocationListener();
 
 		// enable everything
 		duskAlarmSet.setEnabled(true);
@@ -179,31 +205,39 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		LinearLayout myLayout = (LinearLayout) findViewById(R.id.focussucker);
 		myLayout.requestFocus();
 
-		//if no loaction is available, initialize with saved settings.
-		if(!FOUND_LOCATION && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
-			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
-			calculate();
+		// if no loaction is available, initialize with saved settings.
+		if (!FOUND_LOCATION && settings.getDouble(Key.LAST_LATITUDE) != 0 && settings.getDouble(Key.LAST_LATITUDE) != 0) {
+			String timeZoneId = settings.getString(Key.TIMEZONE_ID, TimeZone.getDefault().getID());
+			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(settings.getDouble(Key.LAST_LATITUDE), settings.getDouble(Key.LAST_LONGITUDE)), timeZoneId);
+			calculate(timeZoneId);
 			dawnTimeProgress.setVisibility(View.INVISIBLE);
 			duskTimeProgress.setVisibility(View.INVISIBLE);
 			dawnTime.setVisibility(View.VISIBLE);
-			duskTime.setVisibility(View.VISIBLE);	
+			duskTime.setVisibility(View.VISIBLE);
 		}
-		
+
 		Log.d(TAG, "Time Zone Id: " + TimeZone.getDefault().getID());
+
+		String[] from = { "text" };
+		int[] to = { android.R.id.text1 };
+		if (simpleCursorAdapter == null)
+			simpleCursorAdapter = new SimpleCursorAdapter(ShowStatusActivity.this, android.R.layout.simple_list_item_1, new MatrixCursor(new String[] { "_id", "text" }), from, to, 0);
+
 	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		mUserLocation.unRegisterLocationListener();
 		mUserLocation.setOnLocationChangedListener(null);
 		mUserLocation.setOnNoProviderEnabledListener(null);
 	}
-	
-	private void calculate() {
+
+	private void calculate(String timeZoneId) {
 		if (calculator != null) {
-			Calendar cal = Calendar.getInstance();
+			TimeZone tz = TimeZone.getTimeZone(timeZoneId);
+			Calendar cal = Calendar.getInstance(tz);
 
 			todaySunriseCal = Utils.getSunrise(this, calculator, cal);
 			todaySunsetCal = Utils.getSunset(this, calculator, cal);
@@ -211,7 +245,7 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			cal.add(Calendar.DATE, 1);
 			tomorrowSunriseCal = Utils.getSunrise(this, calculator, cal);
 			tomorrowSunsetCal = Utils.getSunset(this, calculator, cal);
-			
+
 			if (todaySunriseCal == null || todaySunsetCal == null || tomorrowSunriseCal == null || tomorrowSunsetCal == null) {
 				Toast.makeText(this, "Something went wrong. Cannot calculate timing.", Toast.LENGTH_LONG).show();
 				return;
@@ -219,23 +253,27 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 			String dawnText = null;
 			boolean dawnToday, duskToday = false;
-			if (todaySunriseCal.before(Calendar.getInstance())) {
+			if (todaySunriseCal.before(Calendar.getInstance(tz))) {
 				nextSunriseCal = tomorrowSunriseCal;
+				TIME_12HRS.setTimeZone(nextSunriseCal.getTimeZone());
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = false;
 			} else {
 				nextSunriseCal = todaySunriseCal;
+				TIME_12HRS.setTimeZone(nextSunriseCal.getTimeZone());
 				dawnText = TIME_12HRS.format(nextSunriseCal.getTime());
 				dawnToday = true;
 			}
 
 			String duskText = null;
-			if (todaySunsetCal.before(Calendar.getInstance())) {
+			if (todaySunsetCal.before(Calendar.getInstance(tz))) {
 				nextSunsetCal = tomorrowSunsetCal;
+				TIME_12HRS.setTimeZone(nextSunsetCal.getTimeZone());
 				duskText = TIME_12HRS.format(nextSunsetCal.getTime());
 				duskToday = false;
 			} else {
 				nextSunsetCal = todaySunsetCal;
+				TIME_12HRS.setTimeZone(nextSunsetCal.getTimeZone());
 				duskText = TIME_12HRS.format(nextSunsetCal.getTime());
 				duskToday = true;
 			}
@@ -273,10 +311,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		delayDawnAlarm.addTextChangedListener(new TextWatcher() {
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
 
 			@Override
 			public void afterTextChanged(Editable s) {
@@ -297,10 +337,12 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 		delayDuskAlarm.addTextChangedListener(new TextWatcher() {
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+			}
 
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
 
 			@Override
 			public void afterTextChanged(Editable s) {
@@ -327,55 +369,71 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.show_status, menu);
+		getSupportMenuInflater().inflate(R.menu.show_status, menu);
+		mChangeLocation = menu.findItem(R.id.menu_changeloc);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if(item.getItemId() == R.id.menu_settings) {
+		if (item.getItemId() == R.id.menu_settings) {
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS);
-		} else if(item.getItemId() == R.id.menu_feedback) {
+
+		} else if (item.getItemId() == R.id.menu_feedback) {
 			final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 
 			/* Fill it with Data */
 			emailIntent.setType("plain/text");
-			emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"ali@muzaffar.me"});
+			emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] { "ali@muzaffar.me" });
 			emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Sehri and Iftar Alarm - Feedback");
 			emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "I'd like to report a bug or request a feature.");
 
 			/* Send it off to the Activity-Chooser */
 			startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+
+		} else if (item.getItemId() == R.id.menu_changeloc) {
+			if (mSearchView == null) {
+				mSearchView = (SearchView) item.getActionView();
+				mSearchView.setQueryHint("City Name");
+				mSearchView.setOnQueryTextListener(this);
+				mSearchView.setOnSuggestionListener(this);
+
+				mSearchView.setSuggestionsAdapter(simpleCursorAdapter);
+			}
+
+		} else if (item.getItemId() == R.id.menu_clear_location) {
+			clearSetLocation();
 		}
+
 		return false;
 	}
-	
-	
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == SETTINGS) {
-			calculate();
+		if (requestCode == SETTINGS) {
+			AppSettings settings = AppSettings.getInstance(getApplicationContext());
+			String timeZoneId = settings.getString(Key.TIMEZONE_ID, TimeZone.getDefault().getID());
+			calculate(timeZoneId);
 			updateAlarms(true, true);
-			
+
 		}
 	}
-	
+
 	private void updateAlarms(boolean dawn, boolean dusk) {
 		AppSettings settings = AppSettings.getInstance(getApplicationContext());
-		if (dawn && settings.getBoolean(Key.DAWN_ALARM) && nextSunriseCal != null){
+		if (dawn && settings.getBoolean(Key.DAWN_ALARM) && nextSunriseCal != null) {
 			Utils.stopAlarm(getApplicationContext(), Key.DAWN_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunriseCal, Key.DAWN_ALARM.toString());
 		}
-		
+
 		if (dusk && settings.getBoolean(Key.DUSK_ALARM) && nextSunsetCal != null) {
 			Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 			Utils.setAlarm(getApplicationContext(), nextSunsetCal, Key.DUSK_ALARM.toString());
 		}
-		
-		if(nextSunriseCal == null || nextSunsetCal == null) {
+
+		if (nextSunriseCal == null || nextSunsetCal == null) {
 			Toast.makeText(this, "ERROR: Alarm has not have been set.\nUnable to determine alarm times.\nEnable GPS and try again.", Toast.LENGTH_LONG).show();
 		}
 	}
@@ -397,8 +455,8 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 			else
 				Utils.stopAlarm(getApplicationContext(), Key.DUSK_ALARM.toString());
 		}
-		
-		if(nextSunriseCal == null || nextSunsetCal == null) {
+
+		if (nextSunriseCal == null || nextSunsetCal == null) {
 			Toast.makeText(this, "ERROR: Alarm has not have been set.\nUnable to determine alarm times.\nEnable GPS and try again.", Toast.LENGTH_LONG).show();
 		}
 	}
@@ -430,5 +488,173 @@ public class ShowStatusActivity extends Activity implements OnCheckedChangeListe
 	private void removeTestButtons() {
 		TableRow tableRow7 = ((TableRow) findViewById(R.id.tableRow7));
 		tableRow7.setVisibility(View.GONE);
+	}
+	
+	private void clearSetLocation() {
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		mUserLocation.registerLocationListener();
+		settings.set(Key.MANUAL_LOCATION, false);
+
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String newText) {
+
+		if (newText.length() > 1) {
+			simpleCursorAdapter.changeCursor(new MatrixCursor(new String[] { "_id", "text" }));
+
+			setSupportProgressBarIndeterminateVisibility(true);
+			(new FetchLocationsAsyncTask() {
+				protected void onPostExecute(MatrixCursor cursor) {
+					// dismiss UI progress indicator
+					// process the result
+					// ...
+
+					setSupportProgressBarIndeterminateVisibility(false);
+
+					String[] from = { "text" };
+					int[] to = { android.R.id.text1 };
+					if (simpleCursorAdapter == null)
+						simpleCursorAdapter = new SimpleCursorAdapter(ShowStatusActivity.this, android.R.layout.simple_list_item_1, cursor, from, to, 0);
+					else
+						simpleCursorAdapter.changeCursor(cursor);
+
+					mSearchView.setSuggestionsAdapter(simpleCursorAdapter);
+				}	
+			}).execute(newText); // start the background processing
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onSuggestionSelect(int position) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onSuggestionClick(int position) {
+		
+		final AppSettings settings = AppSettings.getInstance(getApplicationContext());
+		
+		Cursor c = mSearchView.getSuggestionsAdapter().getCursor();
+		c.moveToPosition(position);
+		String suggestion = c.getString(1);
+		mChangeLocation.collapseActionView();
+		//Log.d(TAG, "NEW LOCATION >>>> " + suggestion);
+		Toast.makeText(this, "Setting your location to \"" + suggestion+"\"", Toast.LENGTH_SHORT).show();
+		
+		settings.set(Key.MANUAL_LOCATION, true);
+		
+		(new FetchGeoLocationAsyncTask() {
+			protected void onPostExecute(JSONObject result) {
+				// set lat lng & timezone
+				try {
+					
+					double lat = Double.parseDouble(result.getString("lat"));
+					double lng = Double.parseDouble(result.getString("lng"));
+					settings.set(Key.LAST_LATITUDE, lat);
+					settings.set(Key.LAST_LONGITUDE, lng);
+					String timeZoneId = result.getString("timeZoneId");
+					settings.set(Key.TIMEZONE_ID, timeZoneId);
+
+					calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(lat, lng), timeZoneId);
+					calculate(timeZoneId);
+
+				} catch (Exception e) {
+					Log.e(TAG, e.getMessage(), e);
+					Toast.makeText(ShowStatusActivity.this, "Something went wrong. Could not set location.", Toast.LENGTH_LONG).show();
+				}
+			}
+		}).execute(suggestion);
+
+		return false;
+	}
+}
+
+class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
+
+	// web key used.
+	private static String PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=%s&types=(cities)&sensor=true&key=AIzaSyD8_JURVwm4npHZyI2WmNzUhBZK6jMWXyo";
+
+	@Override
+	protected MatrixCursor doInBackground(String... params) {
+		String[] columnNames = { "_id", "text" };
+		MatrixCursor cursor = new MatrixCursor(columnNames);
+				
+		try {
+			String url = String.format(PLACES_URL, URLEncoder.encode(params[0], "UTF-8"));
+			JSONObject jsonObject = JsonHttpHelper.getJson(url);
+			JSONArray predictions = jsonObject.optJSONArray("predictions");
+			
+			if (predictions != null) {
+
+				List<String> results = new ArrayList<String>();
+				
+				for (int i = 0; i < predictions.length(); i++) {
+					JSONObject item = predictions.getJSONObject(i);
+					String description = item.getString("description");
+					results.add(description);
+				}
+
+				String[] temp = new String[2];
+				int id = 0;
+				for (String item : results) {
+					temp[0] = Integer.toString(id++);
+					temp[1] = item;
+					cursor.addRow(temp);
+				}
+
+			}
+
+		} catch (Exception e) {
+			Log.e("FetchLocationsAsyncTask", e.getMessage(), e);
+		}
+		return cursor;
+	}
+
+}
+
+class FetchGeoLocationAsyncTask extends AsyncTask<String, Integer, JSONObject> {
+	private static final String GEO_URL = "http://maps.google.com/maps/api/geocode/json?address=%s&sensor=true";
+	private static final String TZ_URL = "https://maps.googleapis.com/maps/api/timezone/json?location=%s&timestamp="+System.currentTimeMillis()/1000+"&sensor=true";
+
+	@Override
+	protected JSONObject doInBackground(String... params) {
+		try {
+			String url = String.format(GEO_URL, URLEncoder.encode(params[0], "UTF-8"));
+			JSONObject jsonObject = JsonHttpHelper.getJson(url);
+
+			Log.d("FetchGeoLocationAsyncTask", jsonObject.toString());
+
+			JSONArray results = jsonObject.getJSONArray("results");
+			JSONObject item = results.getJSONObject(0);
+			JSONObject geo = item.getJSONObject("geometry").getJSONObject("location");
+
+			JSONObject result = new JSONObject();
+			result.put("name", item.getString("formatted_address"));
+			String lat = geo.getString("lat");
+			result.put("lat", lat);
+			String lng = geo.getString("lng");
+			result.put("lng", lng);
+
+			String tzUrl = String.format(TZ_URL, URLEncoder.encode(lat+","+lng, "UTF-8"));
+			JSONObject tzObj = JsonHttpHelper.getJson(tzUrl);
+			if(tzObj != null) {
+				String tzId = tzObj.getString("timeZoneId");
+				result.put("timeZoneId", tzId);
+			}
+			
+			return result;
+
+		} catch (Exception e) {
+			Log.e("FetchGeoLocationAsyncTask", e.getMessage(), e);
+		}
+		return null;
 	}
 }

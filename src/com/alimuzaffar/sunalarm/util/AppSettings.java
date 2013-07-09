@@ -19,7 +19,9 @@ public class AppSettings {
 			LAST_LATITUDE,
 			RATER_DONTSHOWAGAIN,
 			RATER_LAUNCHCOUNT,
-			RATHER_DATEFIRSTLAUNCH;
+			RATHER_DATEFIRSTLAUNCH,
+			MANUAL_LOCATION,
+			TIMEZONE_ID;
 			
 	}
 
@@ -74,6 +76,10 @@ public class AppSettings {
 		return pref.getString(key.toString(), null);
 	}
 	
+	public String getString(Key key, String defaultValue) {
+		return pref.getString(key.toString(), defaultValue);
+	}
+	
 	public String getString(String key) {
 		return pref.getString(key, null);
 	}	
@@ -100,6 +106,10 @@ public class AppSettings {
 		
 	public boolean getBoolean(Key key) {
 		return pref.getBoolean(key.toString(), false);
+	}
+	
+	public boolean getBoolean(Key key, boolean defaultValue) {
+		return pref.getBoolean(key.toString(), defaultValue);
 	}
 	
 	public boolean getBoolean(String key) {
