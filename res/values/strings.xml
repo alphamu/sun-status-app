@@ -42,5 +42,7 @@
     <!-- Location -->
     <string name="not_support_gps">GPS location services is not supported.</string>
     <string name="not_support_network">Network location services is not supported.</string>
+    
+    <string name="places_api_key">HIDDEN</string>
 
 </resources>

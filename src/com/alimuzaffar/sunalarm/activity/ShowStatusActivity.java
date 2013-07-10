@@ -45,6 +45,7 @@ import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.widget.SearchView;
 import com.actionbarsherlock.widget.SearchView.OnQueryTextListener;
 import com.actionbarsherlock.widget.SearchView.OnSuggestionListener;
+import com.alimuzaffar.sunalarm.BuildConfig;
 import com.alimuzaffar.sunalarm.R;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppRater;
@@ -541,7 +542,7 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 
 					mSearchView.setSuggestionsAdapter(simpleCursorAdapter);
 				}
-			}).execute(newText); // start the background processing
+			}).execute(newText, getResources().getString(R.string.places_api_key)); // start the background processing
 		}
 		return false;
 	}
@@ -606,7 +607,7 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
 
 	// web key used.
-	private static String PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=%s&types=(cities)&sensor=true&key=AIzaSyD8_JURVwm4npHZyI2WmNzUhBZK6jMWXyo";
+	private static String PLACES_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=%s&types=(cities)&sensor=true&key=%s";
 
 	@Override
 	protected MatrixCursor doInBackground(String... params) {
@@ -614,7 +615,9 @@ class FetchLocationsAsyncTask extends AsyncTask<String, Integer, MatrixCursor> {
 		MatrixCursor cursor = new MatrixCursor(columnNames);
 
 		try {
-			String url = String.format(PLACES_URL, URLEncoder.encode(params[0], "UTF-8"));
+			String url = String.format(PLACES_URL, URLEncoder.encode(params[0], "UTF-8"), params[1]);
+			if(BuildConfig.DEBUG)
+				Log.d("FetchLocationsAsyncTask", "Places API = "+url);
 			JSONObject jsonObject = JsonHttpHelper.getJson(url);
 			JSONArray predictions = jsonObject.optJSONArray("predictions");
 
@@ -656,7 +659,11 @@ class FetchGeoLocationAsyncTask extends AsyncTask<String, Integer, JSONObject> {
 			String url = String.format(GEO_URL, URLEncoder.encode(params[0], "UTF-8"));
 			JSONObject jsonObject = JsonHttpHelper.getJson(url);
 
-			Log.d("FetchGeoLocationAsyncTask", jsonObject.toString());
+			if(BuildConfig.DEBUG)
+				Log.d("FetchLocationsAsyncTask", "GEO API = "+url);
+			
+			if(BuildConfig.DEBUG)
+				Log.d("FetchGeoLocationAsyncTask", jsonObject.toString());
 
 			JSONArray results = jsonObject.getJSONArray("results");
 			JSONObject item = results.getJSONObject(0);
@@ -670,6 +677,10 @@ class FetchGeoLocationAsyncTask extends AsyncTask<String, Integer, JSONObject> {
 			result.put("lng", lng);
 
 			String tzUrl = String.format(TZ_URL, URLEncoder.encode(lat + "," + lng, "UTF-8"));
+			
+			if(BuildConfig.DEBUG)
+				Log.d("FetchLocationsAsyncTask", "TIMEZONE API = "+tzUrl);
+			
 			JSONObject tzObj = JsonHttpHelper.getJson(tzUrl);
 			if (tzObj != null) {
 				String tzId = tzObj.getString("timeZoneId");
