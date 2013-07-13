@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.alimuzaffar.sunalarm"
-    android:versionCode="27"
-    android:versionName="1.3.27" >
+    android:versionCode="28"
+    android:versionName="1.3.28" >
 
     <uses-sdk
         android:minSdkVersion="7"
