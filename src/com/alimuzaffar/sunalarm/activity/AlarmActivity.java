@@ -139,11 +139,9 @@ public class AlarmActivity extends Activity {
 			float alarmVolume = (float) sharedPrefs.getInt("alarm_volume", 100); // as a percentage
 			boolean ascendingAlarm = sharedPrefs.getBoolean("ascending_alarm", false);
 			boolean viberateAlarm = sharedPrefs.getBoolean("viberate_alarm", true);
-			
-
-			audioManager.setStreamMute(AudioManager.STREAM_ALARM, forceAlarm);
 
 			if (forceAlarm) {
+				audioManager.setStreamMute(AudioManager.STREAM_ALARM, false);
 				int volume = Utils.getAlarmVolumeFromPercentage(audioManager, alarmVolume);
 				audioManager.setStreamVolume(AudioManager.STREAM_ALARM, volume, 0);
 			}
