@@ -391,19 +391,19 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 			Intent intent = new Intent(this, SettingsActivity.class);
 			startActivityForResult(intent, SETTINGS);
 
-		} else if (item.getItemId() == R.id.menu_feedback) {
+		}/* else if (item.getItemId() == R.id.menu_feedback) {
 			final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 
-			/* Fill it with Data */
+			// Fill it with Data 
 			emailIntent.setType("plain/text");
 			emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[] { "ali@muzaffar.me" });
 			emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Sehri and Iftar Alarm - Feedback");
 			emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "I'd like to report a bug or request a feature.");
 
-			/* Send it off to the Activity-Chooser */
+			// Send it off to the Activity-Chooser 
 			startActivity(Intent.createChooser(emailIntent, "Send mail..."));
 
-		} else if (item.getItemId() == R.id.menu_changeloc) {
+		}*/ else if (item.getItemId() == R.id.menu_changeloc) {
 			if (mSearchView == null) {
 				mSearchView = (SearchView) item.getActionView();
 				mSearchView.setQueryHint("City Name");
@@ -418,6 +418,9 @@ public class ShowStatusActivity extends SherlockActivity implements OnCheckedCha
 			}
 		} else if (item.getItemId() == R.id.menu_clear_location) {
 			clearSetLocation();
+		} else if (item.getItemId() == R.id.menu_help) {
+			Intent intent = new Intent(this, HelpActivity.class);
+			startActivity(intent);
 		}
 
 		return false;

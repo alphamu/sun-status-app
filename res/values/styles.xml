@@ -1,8 +1,9 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppTheme" parent="Theme.Sherlock"> 
+    <style name="AppTheme" parent="Theme.Sherlock">
+        
     </style>
-    
+
     <style name="spinnerText" parent="@android:style/Widget.TextView.SpinnerItem">
         <item name="android:padding">8dp</item>
     </style>

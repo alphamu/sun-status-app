@@ -22,6 +22,11 @@
     </style>
   </head>
   <body>
+$ 1.3.27
+  % Version 1.3.27
+  _ 2013-07-11
+    * Bug fix: dua were not visible on 4.0+
+    * Added sehri and iftar dua on main screen and alarm screen.
 $ 1.3.25
   % Version 1.3.25
   _ 2013-07-10

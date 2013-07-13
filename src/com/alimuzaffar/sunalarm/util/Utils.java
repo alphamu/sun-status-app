@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -52,7 +53,7 @@ public class Utils {
 		final AlertDialog alert = builder.create();
 		alert.show();
 	}
-	
+
 	public static void setAlarm(Context context, Calendar calendar, String type) {
 		Log.d("Utils", "Alarm Type "+type);
 		Intent intent = new Intent(context, AlarmReceiver.class);
@@ -232,4 +233,9 @@ public class Utils {
 		}
 	}
 
+	public static int getAlarmVolumeFromPercentage(AudioManager audioManager, float percentage) {
+		int volume = (int) Math.ceil((double) audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM) * (percentage / 100.0d));
+		return volume;
+		
+	}
 }

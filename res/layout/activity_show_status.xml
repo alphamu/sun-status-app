@@ -4,217 +4,220 @@
     android:layout_height="wrap_content"
     android:padding="@dimen/padding_medium" >
 
-    <TableLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:stretchColumns="0" >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
 
-        <TableRow>
+        <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:stretchColumns="0" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="@dimen/padding_medium"
-                android:text="@string/volume_text" />
-        </TableRow>
+            <TableRow>
 
-        <TableRow>
+                <LinearLayout
+                    android:id="@+id/focussucker"
+                    android:layout_width="0px"
+                    android:layout_height="0px"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical" />
+            </TableRow>
 
-            <LinearLayout
-                android:id="@+id/focussucker"
-                android:layout_width="0px"
-                android:layout_height="0px"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:orientation="vertical" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/dawn"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/dawn"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/dawnTime"
+                    android:id="@+id/dawn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/dawn"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/time"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:visibility="invisible" />
+                    android:orientation="horizontal" >
 
-                <ProgressBar
-                    android:id="@+id/dawnTimeProgress"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center_vertical"
-                    android:indeterminate="true"
-                    android:indeterminateOnly="true" />
-            </LinearLayout>
-        </TableRow>
+                    <TextView
+                        android:id="@+id/dawnTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/time"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:visibility="invisible" />
 
-        <TableRow
-            android:id="@+id/tableRow2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+                    <ProgressBar
+                        android:id="@+id/dawnTimeProgress"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:indeterminate="true"
+                        android:indeterminateOnly="true" />
+                </LinearLayout>
+            </TableRow>
 
-            <TextView
-                android:id="@+id/dusk"
+            <TableRow
+                android:id="@+id/tableRow2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/dusk"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:layout_height="wrap_content" >
 
                 <TextView
-                    android:id="@+id/duskTime"
+                    android:id="@+id/dusk"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/time"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:visibility="invisible" />
+                    android:layout_weight="1"
+                    android:text="@string/dusk"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-                <ProgressBar
-                    android:id="@+id/duskTimeProgress"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:id="@+id/duskTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/time"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:visibility="invisible" />
+
+                    <ProgressBar
+                        android:id="@+id/duskTimeProgress"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center_vertical"
+                        android:indeterminate="true"
+                        android:indeterminateOnly="true" />
+                </LinearLayout>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical" >
+
+                <TextView
+                    android:id="@+id/dawnAlarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:indeterminate="true"
-                    android:indeterminateOnly="true" />
-            </LinearLayout>
-        </TableRow>
+                    android:layout_weight="1"
+                    android:text="@string/dawnAlarm"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TableRow
-            android:id="@+id/tableRow3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical" >
+                <ToggleButton
+                    android:id="@+id/dawnAlarmSet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="" />
+            </TableRow>
 
-            <TextView
-                android:id="@+id/dawnAlarm"
+            <TableRow
+                android:id="@+id/tableRow4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/duskAlarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="@string/duskAlarm"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <ToggleButton
+                    android:id="@+id/duskAlarmSet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="@string/dawnAlarm"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:minHeight="50sp" >
 
-            <ToggleButton
-                android:id="@+id/dawnAlarmSet"
+                <TextView
+                    android:id="@+id/delay_dawn_alarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/delay_dawn_alarm"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <EditText
+                    android:id="@+id/delayDawnAlarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="4"
+                    android:inputType="numberSigned"
+                    android:maxLength="4"
+                    android:text="@string/int_0" >
+
+                    <requestFocus />
+                </EditText>
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="" />
-        </TableRow>
+                android:minHeight="50sp" >
 
-        <TableRow
-            android:id="@+id/tableRow4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+                <TextView
+                    android:id="@+id/delay_dusk_alarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/delay_dusk_alarm"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
 
-            <TextView
-                android:id="@+id/duskAlarm"
+                <EditText
+                    android:id="@+id/delayDuskAlarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ems="4"
+                    android:inputType="numberSigned"
+                    android:maxLength="4"
+                    android:text="@string/int_0" />
+            </TableRow>
+
+            <TableRow
+                android:id="@+id/tableRow7"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:text="@string/duskAlarm"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:layout_height="wrap_content" >
 
-            <ToggleButton
-                android:id="@+id/duskAlarmSet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:text="" />
-        </TableRow>
+                <Button
+                    android:id="@+id/testDawn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/test_dawn" />
 
-        <TableRow
-            android:id="@+id/tableRow5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="50sp" >
+                <Button
+                    android:id="@+id/testDusk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/test_dusk" />
+            </TableRow>
+        </TableLayout>
 
-            <TextView
-                android:id="@+id/delay_dawn_alarm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/delay_dawn_alarm"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <EditText
-                android:id="@+id/delayDawnAlarm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="4"
-                android:inputType="numberSigned"
-                android:maxLength="4"
-                android:text="@string/int_0" >
-
-                <requestFocus />
-            </EditText>
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="50sp" >
-
-            <TextView
-                android:id="@+id/delay_dusk_alarm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/delay_dusk_alarm"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
-
-            <EditText
-                android:id="@+id/delayDuskAlarm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="4"
-                android:inputType="numberSigned"
-                android:maxLength="4"
-                android:text="@string/int_0" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/testDawn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/test_dawn" />
-
-            <Button
-                android:id="@+id/testDusk"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/test_dusk" />
-        </TableRow>
-    </TableLayout>
+		<include layout="@layout/layout_sehri"/>
+		
+		<include layout="@layout/layout_iftar"/>
+		
+    </LinearLayout>
 
 </ScrollView>

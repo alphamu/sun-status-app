@@ -1,8 +1,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/alarmDialog"
-    android:padding="@dimen/padding_medium"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="@dimen/padding_medium" >
+
+    <include layout="@layout/layout_iftar" />
+
+    <include layout="@layout/layout_sehri" />
 
     <Button
         android:id="@+id/turnAOffAlarm"
