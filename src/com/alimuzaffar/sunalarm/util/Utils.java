@@ -22,6 +22,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.alimuzaffar.sunalarm.activity.ShowStatusActivity;
 import com.alimuzaffar.sunalarm.receiver.AlarmReceiver;
 import com.alimuzaffar.sunalarm.util.AppSettings.Key;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
@@ -67,7 +68,7 @@ public class Utils {
 			sender = PendingIntent.getBroadcast(context, REQUEST_DUSK, intent, 0);
 		}
 		
-		Calendar alarmCal = Calendar.getInstance();
+		Calendar alarmCal = Calendar.getInstance(calendar.getTimeZone());
 		alarmCal.setTimeInMillis(calendar.getTimeInMillis());
 		
 		AppSettings appSettings = AppSettings.getInstance(context);
@@ -92,7 +93,7 @@ public class Utils {
 			alarmManager.set(AlarmManager.RTC_WAKEUP, alarmCal.getTimeInMillis(), sender);
 		}
 		
-		Toast.makeText(context, type+" set for "+alarmCal.getTime(), Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, type+" set for "+ShowStatusActivity.TIME_12HRS.format(alarmCal.getTime()), Toast.LENGTH_SHORT).show();
 	}
 
 	public static void stopAlarm(Context context, String type) {
@@ -128,7 +129,7 @@ public class Utils {
 			calculator = new SunriseSunsetCalculator(new com.luckycatlabs.sunrisesunset.dto.Location(appSettings.getDouble(Key.LAST_LATITUDE), appSettings.getDouble(Key.LAST_LONGITUDE)), TimeZone.getDefault().getID());
 		}
 		
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(TimeZone.getDefault());
 		cal.add(Calendar.DATE, 1);
 		Calendar nextAlarmCal;
 		if(alarmType.equals(Key.DAWN_ALARM.toString())) {

@@ -32,7 +32,7 @@ public class AppSettings {
 
 	public static AppSettings getInstance(Context context) {
 		if (settings == null) {
-			settings = new AppSettings(context);
+			settings = new AppSettings(context.getApplicationContext());
 		}
 		return settings;
 	}
